@@ -13,6 +13,8 @@ import { useKeyboardInput } from "./useTempleInput";
 import { ErrorBoundary } from "../../../shared/ui/ErrorBoundary";
 import { isTouchDevice, isWebGLAvailable } from "../../../shared/lib/webgl";
 import { startAmbient, stopAmbient, unlockAudio } from "../../../shared/audio/sound";
+import { getGuestSession } from "../../../shared/lib/guest";
+import { TEMPLE_NAME } from "../domain/world";
 
 export default function TemplePage() {
   const [supported] = useState(() => isWebGLAvailable());
@@ -36,6 +38,12 @@ function TempleExperience() {
     cameraState.distance = isTouch ? 6.8 : 6;
     return null;
   });
+
+  // Đồng bộ nhân vật (có thể đã đổi tên ở trang Nhật ký).
+  useEffect(() => {
+    const g = getGuestSession();
+    useTempleStore.setState({ playerName: g.displayName, playerGender: g.gender, profileChosen: g.profileChosen });
+  }, []);
 
   useEffect(() => {
     document.body.classList.add("is-temple");
@@ -80,7 +88,8 @@ function TempleExperience() {
       },
       onEscape: () => {
         const s = useTempleStore.getState();
-        if (s.panel === "meditation") endTempleMeditation();
+        if (s.panel === "profile" && !s.profileChosen) return;
+        if (s.panel === "meditation" || s.panel === "meal") endTempleMeditation();
         else if (s.panel !== "none") s.closePanel();
         else s.openPanel("settings");
       },
@@ -112,7 +121,11 @@ function TempleExperience() {
     cameraState.distance = Math.min(10, Math.max(2.8, cameraState.distance + e.deltaY * 0.004));
   };
 
-  const onReady = useCallback(() => setReady(true), []);
+  const onReady = useCallback(() => {
+    setReady(true);
+    const s = useTempleStore.getState();
+    if (s.profileChosen) s.showToast(`Chào mừng ${s.playerName}`, `đến ${TEMPLE_NAME}`);
+  }, []);
 
   if (lost) return <TempleFallback reason="lost" />;
 
@@ -132,7 +145,7 @@ function TempleExperience() {
             shadows={profile.shadows}
             dpr={profile.dpr}
             gl={{ antialias: profile.antialias, powerPreference: "high-performance" }}
-            camera={{ fov: isTouch ? 62 : 55, near: 0.1, far: 400, position: [0, 4, 26] }}
+            camera={{ fov: isTouch ? 62 : 55, near: 0.1, far: 500, position: [0, 6, 62] }}
             onCreated={({ gl }) => {
               gl.toneMapping = THREE.ACESFilmicToneMapping;
               gl.toneMappingExposure = 1.05;
@@ -154,7 +167,7 @@ function TempleExperience() {
 
       <div className={`loading ${ready ? "is-done" : ""}`} aria-hidden={ready}>
         <div className="loading__mark" />
-        <p>Đang mở cổng chùa…</p>
+        <p>Đang mở cổng {TEMPLE_NAME}…</p>
       </div>
     </div>
   );

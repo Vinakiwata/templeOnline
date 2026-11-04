@@ -2,7 +2,7 @@ import type { Interactable, InteractionAction } from "../domain/interactables";
 import { useTempleStore } from "./templeStore";
 import { isPlayerBusy, playerRuntime } from "../game/systems/runtime";
 import { gameEvents } from "../game/systems/events";
-import { playBell, playChime, playSmallBell } from "../../../shared/audio/sound";
+import { playBell, playChime, playDrum, playSmallBell } from "../../../shared/audio/sound";
 import { recordActivity } from "../../journal/application/activityService";
 
 /**
@@ -16,6 +16,7 @@ export const ACTION_TIMELINE: Partial<Record<InteractionAction, { duration: numb
   offer_flower: { duration: 2.8, keyframes: [1.5] },
   light_incense: { duration: 3.4, keyframes: [2.0] },
   ring_bell: { duration: 2.0, keyframes: [0.85] },
+  beat_drum: { duration: 3.0, keyframes: [0.7, 1.4, 2.1] },
 };
 
 const COMPLETE_MESSAGES: Partial<Record<InteractionAction, [string, string]>> = {
@@ -23,6 +24,7 @@ const COMPLETE_MESSAGES: Partial<Record<InteractionAction, [string, string]>> = 
   offer_flower: ["Đóa sen đã được dâng lên", "Hoa nở rồi tàn — nhắc ta trân quý hiện tại."],
   light_incense: ["Ba nén tâm hương đã được dâng", "Giới hương · Định hương · Tuệ hương"],
   ring_bell: ["Tiếng chuông ngân vang", "Thở vào, thở ra — trở về với chính mình."],
+  beat_drum: ["Ba hồi trống bát nhã", "Tỉnh thức và tinh tấn."],
 };
 
 export function startAction(
@@ -33,6 +35,10 @@ export function startAction(
   const store = useTempleStore.getState();
   if (action === "learn") {
     store.openPanel("info", target.id);
+    return;
+  }
+  if (action === "listen_dharma") {
+    store.openPanel("dharma", target.id);
     return;
   }
   if (action === "read_sutra") {
@@ -48,20 +54,26 @@ export function startAction(
     return;
   }
 
+  if (action === "have_meal") {
+    playerRuntime.pending = { action, objectId: target.id, focus: target.focus, seat: target.anchor };
+    store.openPanel("meal", target.id);
+    return;
+  }
+
   store.closePanel();
   store.setBusy(true);
   playerRuntime.pending = { action, objectId: target.id, focus: target.focus };
 }
 
 /** Được Player gọi khi animation đạt tới keyframe. */
-export function handleKeyframe(action: InteractionAction, index: number) {
+export function handleKeyframe(action: InteractionAction, index: number, objectId: string) {
   const store = useTempleStore.getState();
   switch (action) {
     case "worship":
       playSmallBell();
       break;
     case "light_incense":
-      store.lightIncense();
+      store.lightIncense(objectId);
       gameEvents.emit("incense:lit");
       playChime(0.9);
       break;
@@ -74,17 +86,20 @@ export function handleKeyframe(action: InteractionAction, index: number) {
       gameEvents.emit("bell:ring");
       playBell(1);
       break;
+    case "beat_drum":
+      gameEvents.emit("drum:beat");
+      playDrum(index === 2 ? 1 : 0.8);
+      break;
     default:
       break;
   }
-  void index;
 }
 
 /** Được Player gọi khi nghi thức kết thúc. */
 export function completeAction(action: InteractionAction, objectId: string) {
   const store = useTempleStore.getState();
   store.setBusy(false);
-  if (action === "learn" || action === "read_sutra" || action === "meditate") return;
+  if (action === "learn" || action === "read_sutra" || action === "meditate" || action === "listen_dharma" || action === "have_meal") return;
   recordActivity({ activityType: action, objectId });
   const msg = COMPLETE_MESSAGES[action];
   if (msg) store.showToast(msg[0], msg[1]);

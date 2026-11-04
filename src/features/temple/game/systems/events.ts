@@ -4,6 +4,7 @@
  */
 export interface GameEventMap {
   "bell:ring": void;
+  "drum:beat": void;
   "incense:lit": void;
   "flower:offered": void;
 }

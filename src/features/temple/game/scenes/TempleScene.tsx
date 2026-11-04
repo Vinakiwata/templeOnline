@@ -1,21 +1,14 @@
 import { useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import { Environment } from "../entities/Environment";
-import { MainHall } from "../entities/MainHall";
-import {
-  BellTower,
-  BodhiTree,
-  Gate,
-  IncenseBurner,
-  Lanterns,
-  LotusPond,
-  QuanAmStatue,
-  Trees,
-} from "../entities/Courtyard";
+import { Forest, Ground, Road } from "../entities/Terrain";
+import { TempleCompound } from "../entities/TempleCompound";
+import { Npcs } from "../entities/Npc";
 import { Player } from "../entities/Player";
 import { CameraController } from "../controllers/CameraController";
 import { InteractionSystem } from "../interactions/InteractionSystem";
 import type { QualityProfile } from "../systems/quality";
+import { renderSettings } from "../systems/runtime";
 
 /** Temple Main Scene (PRD 5.1). */
 export function TempleScene({
@@ -27,20 +20,17 @@ export function TempleScene({
   onReady: () => void;
   showFps: boolean;
 }) {
+  renderSettings.nearScale = quality.nearScale;
   return (
     <>
       <Environment quality={quality} />
-      <group name="Temple">
-        <MainHall />
-        <Gate />
-        <BellTower />
-        <LotusPond />
-        <BodhiTree detail={quality.foliageDetail} />
-        <QuanAmStatue />
-        <IncenseBurner smokeCount={quality.smoke} />
-        <Lanterns />
-        <Trees detail={quality.foliageDetail} />
+      <group name="World">
+        <Ground segments={quality.terrainSegments} />
+        <Road />
+        <Forest count={quality.forestTrees} detail={quality.foliageDetail} />
       </group>
+      <TempleCompound smoke={quality.smoke} detail={quality.foliageDetail} />
+      <Npcs />
       <Player />
       <CameraController />
       <InteractionSystem />

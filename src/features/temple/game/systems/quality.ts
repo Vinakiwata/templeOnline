@@ -10,6 +10,10 @@ export interface QualityProfile {
   antialias: boolean;
   smoke: number; // số hạt khói
   foliageDetail: number;
+  terrainSegments: number;
+  forestTrees: number;
+  /** Hệ số bán kính hiển thị nội thất các điện. */
+  nearScale: number;
 }
 
 export const QUALITY_PROFILES: Record<QualityLevel, QualityProfile> = {
@@ -22,6 +26,9 @@ export const QUALITY_PROFILES: Record<QualityLevel, QualityProfile> = {
     antialias: false,
     smoke: 8,
     foliageDetail: 0,
+    terrainSegments: 80,
+    forestTrees: 140,
+    nearScale: 0.65,
   },
   medium: {
     level: "medium",
@@ -32,6 +39,9 @@ export const QUALITY_PROFILES: Record<QualityLevel, QualityProfile> = {
     antialias: true,
     smoke: 14,
     foliageDetail: 1,
+    terrainSegments: 120,
+    forestTrees: 240,
+    nearScale: 0.85,
   },
   high: {
     level: "high",
@@ -42,6 +52,9 @@ export const QUALITY_PROFILES: Record<QualityLevel, QualityProfile> = {
     antialias: true,
     smoke: 22,
     foliageDetail: 1,
+    terrainSegments: 160,
+    forestTrees: 360,
+    nearScale: 1.2,
   },
 };
 

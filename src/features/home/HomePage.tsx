@@ -37,7 +37,7 @@ export function HomePage() {
           <TempleSilhouette />
         </div>
         <div className="hero__content">
-          <p className="eyebrow eyebrow--light">Virtual Buddhist Temple</p>
+          <p className="eyebrow eyebrow--light">Thiện Phúc Tự · Chùa Online</p>
           <h1>
             Một ngôi chùa
             <br />

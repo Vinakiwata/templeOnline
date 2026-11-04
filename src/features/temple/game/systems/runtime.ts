@@ -68,3 +68,17 @@ export function isPlayerBusy() {
   const m = playerRuntime.mode;
   return m === "bowing" || m === "offering" || m === "incense" || m === "ringing" || playerRuntime.pending !== null;
 }
+
+/** Thiết lập hiển thị theo chất lượng (đọc trong useFrame, không gây re-render). */
+export const renderSettings = {
+  /** Hệ số bán kính hiển thị nội thất (Near). */
+  nearScale: 1,
+};
+
+/** Vị trí các NPC để người chơi không đi xuyên qua (cập nhật mỗi frame bởi Npc). */
+export const npcColliders: { x: number; z: number; r: number; active: boolean }[] = Array.from({ length: 64 }, () => ({
+  x: 0,
+  z: 0,
+  r: 0.35,
+  active: false,
+}));

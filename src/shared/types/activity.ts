@@ -7,6 +7,9 @@ export type InteractionAction =
   | "offer_flower"
   | "light_incense"
   | "ring_bell"
+  | "beat_drum"
+  | "listen_dharma"
+  | "have_meal"
   | "read_sutra"
   | "meditate"
   | "learn";
@@ -27,6 +30,9 @@ export const ACTIVITY_LABELS: Record<ActivityType, string> = {
   offer_flower: "Dâng hoa",
   light_incense: "Thắp hương",
   ring_bell: "Thỉnh chuông",
+  beat_drum: "Đánh trống",
+  listen_dharma: "Nghe giảng",
+  have_meal: "Thọ trai",
   read_sutra: "Đọc kinh",
   meditate: "Thiền định",
 };

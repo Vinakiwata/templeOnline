@@ -118,3 +118,56 @@ Các service đã có interface khớp với API trong PRD mục 7, chỉ cần 
 4. Bản ghi âm chuông và tụng kinh thật thay cho âm thanh tổng hợp / giọng máy.
 5. Nhờ quý Thầy/Cô cố vấn rà soát nội dung kinh và phần giải thích.
 6. Dựng backend NestJS + Prisma theo schema trong PRD, thay các service ở bảng trên.
+
+## Bố cục chùa (bản 2 — chùa lớn trên đồi)
+
+Người chơi bắt đầu ở **chân đồi**, đi theo con đường quanh co lên **cổng Tam quan**. Trục chính (x = 0) từ ngoài vào trong:
+
+| Khu vực | Nội dung | Tương tác |
+|---|---|---|
+| Đường lên chùa | Đường đá uốn lượn, đèn lồng, rừng cây hai bên | — |
+| Tam quan | Ba lối (đại quan + hai tiểu quan), gác trên cổng | Tìm hiểu |
+| Sân chùa | Gác chuông (trái), gác trống (phải), cây phướn, lư hương, tháp đá, ao sen + Quán Âm lộ thiên, cội Bồ Đề | Thỉnh chuông, đánh trống, thắp hương, lễ bái, ngồi thiền |
+| Tiền đường | Ban Đức Ông (trái), ban Thánh Hiền – A Nan Đà (phải), mỗi ban 2 thị giả, Bát bộ Kim Cương hai bên | Lễ bái, tìm hiểu |
+| Thiêu hương | Gian nối, bàn hương | Thắp hương |
+| Thượng điện | Bàn thờ 4 cấp: Tam Thế Phật → Di Đà tam tôn → Thích Ca → Cửu Long | Lễ bái, dâng hoa, tìm hiểu |
+| Hành lang | Hai dãy ôm khu trung tâm, Thập bát La Hán (9 vị mỗi bên) | Tìm hiểu |
+| Nhà Tổ | Ba vị Tổ sư, bài vị | Lễ bái |
+| Điện Mẫu | Tam tòa Thánh Mẫu (xanh – đỏ – trắng) | Lễ bái |
+| Phụ trợ | Tăng xá, Trai đường (có bếp), Giảng đường (mở thư viện kinh), Bảo tháp 7 tầng | Tìm hiểu / đọc kinh |
+
+Tiền đường + Thiêu hương + Thượng điện tạo mặt bằng **chữ Công (工)**; hai dãy hành lang + Nhà Tổ khép lại thành **chữ Quốc (国)**.
+
+- **Bản đồ**: nút bản đồ trên HUD (desktop có thêm bản đồ nhỏ góc phải) — chạm tên địa điểm để đi nhanh.
+- **Hiệu năng**: rừng cây dùng InstancedMesh; tượng trong các điện chỉ hiển thị khi người chơi ở gần (`Near`), bán kính giảm ở chất lượng Thấp; vùng đổ bóng đi theo người chơi.
+- Dữ liệu bố cục (địa hình, nền, collider, khu vực, địa điểm) nằm trong `src/features/temple/domain/world.ts`.
+
+## Thiền đường, Giảng đường & nhân vật (bản 3)
+
+- **Thiền đường** (góc sau bên phải, lối vào từ phía Nhà Tổ): 12 bồ đoàn quay về bàn Phật, Thầy hướng dẫn ngồi phía trước cùng chuông gia trì và mõ, hương luôn được thắp. Bồ đoàn trống ở hàng giữa dành cho người chơi → **Ngồi thiền** cùng đại chúng.
+- **Giảng đường**: bục giảng có Thầy ngồi giảng, chú tiểu đứng hầu, đại chúng ngồi trên chiếu. Hành động mới **Nghe giảng** mở bài pháp ngắn (Sống trong hiện tại · Nuôi dưỡng lòng từ · Vô thường), có thể nghe máy đọc và ghi vào nhật ký. Nội dung trong `src/features/sutra/data/dharmaTalks.ts` (cần quý Thầy rà soát).
+- **Nhân vật** (`src/features/temple/domain/npcs.ts`, ~35 người):
+  - *Chư Tăng*: thầy thiền hành quanh sân, thầy tụng kinh gõ mõ ở Thượng điện, thầy giảng pháp, thầy hướng dẫn thiền, thầy đi lại trước Tăng xá.
+  - *Chú tiểu*: quét sân, dâng hương ở Nhà Tổ, ngồi tụng kinh, hầu thầy ở Giảng đường, ngồi thiền.
+  - *Người hành hương*: đi lên/xuống đường (có người đội nón lá), viếng một vòng sân (lư hương → Tiền đường → Quán Âm), dâng hương, lễ Phật, lễ Đức Ông, viếng hành lang La Hán, nghe pháp, ngồi thiền.
+  - Mỗi nhân vật tự ẩn khi ở xa người chơi; người chơi không đi xuyên qua nhân vật.
+
+## Thiện Phúc Tự & nhân vật người chơi (bản 4)
+
+- Tên chùa **Thiện Phúc Tự (善福寺)**: hoành phi cổng Tam quan (mặt ngoài chữ Quốc ngữ, mặt trong chữ Hán), bia đá ở chân đồi, màn hình chờ. Đổi tên tại `TEMPLE_NAME` trong `src/features/temple/domain/world.ts`.
+- **Chọn nhân vật**: lần đầu vào chùa, chọn Nam / Nữ và đặt tên (tối đa 24 ký tự). Nam: áo tràng lam đậm, tóc ngắn; Nữ: áo tràng lam nhạt, tóc vấn búi buông dài. Tên hiện trên đầu nhân vật. Đổi lại trong **Cài đặt → Đổi nhân vật** hoặc trang **Nhật ký**. Lưu trên thiết bị (`src/shared/lib/guest.ts`).
+
+## Trai đường & nhà trù (bản 5)
+
+- **Trai đường** (bên phải, cửa hướng ra sân): bàn Phật đầu nhà, bàn và chỗ ngồi của Thầy trụ trì, hai dãy bàn thấp có chiếu, bát cơm, bát canh, đũa, ấm trà; khánh đồng treo ở hiên. Đại chúng (thầy, chú tiểu, Phật tử) đang thọ trai, chú tiểu bưng khay đi giữa lối.
+- **Thọ trai**: đến chỗ ngồi còn trống ở dãy bàn bên trái gần cửa → *Thọ trai*: nhân vật ngồi xuống, lần lượt quán tưởng năm điều trước bữa ăn rồi dùng bữa trong chánh niệm; ghi vào nhật ký.
+- **Nhà trù** (phía sau, cửa ở góc phải vách ngăn): bếp lò hai nồi lớn đang bốc hơi, lu nước, bàn sơ chế rau, kệ bát, củi; chú tiểu nấu cơm và Phật tử công quả nhặt rau.
+- Biển tên chữ cho **Trai đường**, **Giảng đường**, **Thiền đường**.
+
+## Câu đối cổng & chỗ ngồi thọ trai (bản 6)
+
+- **Câu đối** trên hai trụ đại quan (chữ vàng nền son, viết dọc), lồng tên chùa:
+  - Trụ trái (vế đầu): *Thiện niệm khởi tâm, muôn nẻo an lành về cửa Phật*
+  - Trụ phải (vế sau): *Phúc duyên gieo hạt, ngàn đời hoan hỷ hướng đường Thiền*
+  - Sửa nội dung tại `GATE_COUPLET` trong `src/features/temple/domain/world.ts`.
+- **Trai đường**: mọi chỗ ngồi còn trống đều có thể ngồi xuống *Thọ trai*.

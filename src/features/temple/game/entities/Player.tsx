@@ -1,14 +1,38 @@
-import { useLayoutEffect, useRef } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef } from "react";
 import * as THREE from "three";
 import { useFrame } from "@react-three/fiber";
 import { M } from "./materials";
-import { cameraState, input, playerRuntime, type PlayerMode } from "../systems/runtime";
-import { getArea, groundHeight, resolveCollisions } from "../../domain/world";
+import { cameraState, input, npcColliders, playerRuntime, type PlayerMode } from "../systems/runtime";
+import { getArea, groundHeight, resolveCollisions, SOLEMN_AREAS } from "../../domain/world";
 import { ACTION_TIMELINE, completeAction, handleKeyframe } from "../../application/actionHandler";
 import type { InteractionAction } from "../../domain/interactables";
+import { useTempleStore } from "../../application/templeStore";
+import { makeTextTexture, measureText, SANS } from "../systems/textTexture";
 
-const WALK_SPEED = 2.6;
-const RUN_SPEED = 4.8;
+/** Bảng tên nổi trên đầu nhân vật. */
+function useNameTag(name: string) {
+  const { tex, aspect } = useMemo(() => {
+    const size = 56;
+    const textW = measureText(name, SANS.replace("{size}", `${size}px`));
+    const width = Math.min(900, Math.max(220, Math.ceil(textW + 90)));
+    const height = 104;
+    return {
+      tex: makeTextTexture({
+        width,
+        height,
+        background: "rgba(31,22,17,0.62)",
+        radius: 50,
+        lines: [{ text: name, font: SANS, color: "#fff4dc", size }],
+      }),
+      aspect: width / height,
+    };
+  }, [name]);
+  useEffect(() => () => tex.dispose(), [tex]);
+  return { tex, aspect };
+}
+
+const WALK_SPEED = 3.0;
+const RUN_SPEED = 6.0;
 const HALL_SPEED = 1.5; // đi chậm trong chánh điện (PRD 5.2)
 const RADIUS = 0.38;
 
@@ -26,7 +50,9 @@ const MODE_FOR_ACTION: Partial<Record<InteractionAction, PlayerMode>> = {
   offer_flower: "offering",
   light_incense: "incense",
   ring_bell: "ringing",
+  beat_drum: "ringing",
   meditate: "meditating",
+  have_meal: "meditating",
 };
 
 /**
@@ -34,6 +60,11 @@ const MODE_FOR_ACTION: Partial<Record<InteractionAction, PlayerMode>> = {
  * Nhân vật mặc áo tràng lam, animation procedural (không cần file rig).
  */
 export function Player() {
+  const gender = useTempleStore((s) => s.playerGender);
+  const name = useTempleStore((s) => s.playerName);
+  const female = gender === "nu";
+  const nameTag = useNameTag(name);
+  const tag = useRef<THREE.Sprite>(null);
   const root = useRef<THREE.Group>(null);
   const torso = useRef<THREE.Group>(null);
   const armL = useRef<THREE.Group>(null);
@@ -109,13 +140,24 @@ export function Player() {
       dx /= len;
       dz /= len;
 
-      const inHall = getArea(p.position.x, p.position.z) === "main_hall";
+      const inHall = SOLEMN_AREAS.includes(getArea(p.position.x, p.position.z));
       const wantsRun = input.run || (input.joyActive && mag > 0.97);
       const maxSpeed = inHall ? HALL_SPEED : wantsRun ? RUN_SPEED : WALK_SPEED;
       p.speed = damp(p.speed, maxSpeed * mag, 8, dt);
       p.position.x += dx * p.speed * dt;
       p.position.z += dz * p.speed * dt;
       resolveCollisions(p.position, RADIUS);
+      for (const c of npcColliders) {
+        if (!c.active) continue;
+        const dx = p.position.x - c.x;
+        const dz = p.position.z - c.z;
+        const d = Math.hypot(dx, dz);
+        const min = c.r + RADIUS;
+        if (d < min && d > 1e-4) {
+          p.position.x = c.x + (dx / d) * min;
+          p.position.z = c.z + (dz / d) * min;
+        }
+      }
       p.rotationY = dampAngle(p.rotationY, Math.atan2(dx, dz), 10, dt);
       p.mode = p.speed > WALK_SPEED + 0.4 ? "running" : "walking";
     } else {
@@ -135,7 +177,7 @@ export function Player() {
       env = Math.min(1, t / 0.35, Math.max(0, (dur - t) / 0.35));
       const kfs = tl?.keyframes ?? [];
       while (a.fired < kfs.length && t >= kfs[a.fired]) {
-        handleKeyframe(p.active.action, a.fired);
+        handleKeyframe(p.active.action, a.fired, p.active.objectId);
         a.fired++;
       }
       if (t >= dur) {
@@ -191,6 +233,12 @@ export function Player() {
       armX = armXR = t < 1.4 ? -2.1 : -1.45;
       armZ = 0.52;
       pitch = t > 1.4 && t < 2.6 ? Math.sin(((t - 1.4) / 1.2) * Math.PI) * 0.45 : 0;
+    } else if (p.mode === "ringing" && p.active?.action === "beat_drum") {
+      const push = Math.max(0, Math.sin(((t - 0.35) / 0.7) * Math.PI * 2));
+      armX = -1.2 - push * 0.5;
+      armXR = -1.2 - Math.max(0, Math.sin(((t - 0.7) / 0.7) * Math.PI * 2)) * 0.5;
+      armZ = 0.1;
+      pitch = 0.1;
     } else if (p.mode === "ringing") {
       const push = t > 0.5 && t < 1.1 ? Math.sin(((t - 0.5) / 0.6) * Math.PI) : 0;
       armX = armXR = -1.5 - push * 0.15;
@@ -223,12 +271,20 @@ export function Player() {
       skirt.current.position.y = THREE.MathUtils.lerp(0.5, 0.16, s);
     }
     if (flower.current) flower.current.visible = showFlower;
+    if (tag.current) tag.current.position.y = THREE.MathUtils.lerp(2.12, 1.55, a.sit) * (female ? 0.95 : 1);
   });
 
+  const robeMat = female ? M.robeFemale : M.robe;
+  const robeDarkMat = female ? M.robeFemaleDark : M.robeDark;
+  const TAG_H = 0.24;
   return (
     <group ref={root}>
+      <sprite ref={tag} position={[0, 2.12, 0]} scale={[TAG_H * nameTag.aspect, TAG_H, 1]} renderOrder={10}>
+        <spriteMaterial map={nameTag.tex} transparent depthWrite={false} />
+      </sprite>
+      <group scale={female ? 0.95 : 1}>
       {/* Vạt áo dưới */}
-      <mesh ref={skirt} position={[0, 0.5, 0]} material={M.robe} castShadow>
+      <mesh ref={skirt} position={[0, 0.5, 0]} material={robeMat} castShadow>
         <cylinderGeometry args={[0.2, 0.31, 1.0, 16]} />
       </mesh>
       <mesh ref={footL} position={[-0.1, 0.03, 0.06]} material={M.shoe} castShadow>
@@ -240,10 +296,10 @@ export function Player() {
 
       {/* Thân trên — pivot ở hông */}
       <group ref={torso} position={[0, 0.95, 0]}>
-        <mesh position={[0, 0.31, 0]} material={M.robe} castShadow>
+        <mesh position={[0, 0.31, 0]} material={robeMat} castShadow>
           <cylinderGeometry args={[0.17, 0.21, 0.62, 16]} />
         </mesh>
-        <mesh position={[0, 0.6, 0]} scale={[1, 0.45, 0.8]} material={M.robeDark} castShadow>
+        <mesh position={[0, 0.6, 0]} scale={[1, 0.45, 0.8]} material={robeDarkMat} castShadow>
           <sphereGeometry args={[0.22, 16, 10]} />
         </mesh>
         {/* Đầu */}
@@ -254,9 +310,28 @@ export function Player() {
           <mesh position={[0, 0.06, 0]} material={M.skin} castShadow>
             <sphereGeometry args={[0.13, 20, 16]} />
           </mesh>
-          <mesh position={[0, 0.08, -0.012]} rotation-x={-0.35} material={M.hair}>
-            <sphereGeometry args={[0.138, 20, 12, 0, Math.PI * 2, 0, Math.PI * 0.55]} />
-          </mesh>
+          {female ? (
+            <>
+              {/* Tóc dài vấn búi */}
+              <mesh position={[0, 0.075, -0.014]} rotation-x={-0.3} material={M.hair}>
+                <sphereGeometry args={[0.14, 20, 12, 0, Math.PI * 2, 0, Math.PI * 0.62]} />
+              </mesh>
+              <mesh position={[0, 0.05, -0.15]} material={M.hair}>
+                <sphereGeometry args={[0.075, 12, 10]} />
+              </mesh>
+              <mesh position={[0, 0.07, -0.15]} rotation-x={Math.PI / 2} material={M.goldBright}>
+                <torusGeometry args={[0.05, 0.008, 6, 16]} />
+              </mesh>
+              {/* Tóc dài buông sau lưng */}
+              <mesh position={[0, -0.14, -0.12]} rotation-x={0.12} scale={[1, 1, 0.45]} material={M.hair}>
+                <cylinderGeometry args={[0.1, 0.075, 0.42, 12]} />
+              </mesh>
+            </>
+          ) : (
+            <mesh position={[0, 0.08, -0.012]} rotation-x={-0.35} material={M.hair}>
+              <sphereGeometry args={[0.138, 20, 12, 0, Math.PI * 2, 0, Math.PI * 0.5]} />
+            </mesh>
+          )}
         </group>
         {/* Tay */}
         {(
@@ -266,7 +341,7 @@ export function Player() {
           ] as const
         ).map(([ref, x]) => (
           <group key={x} ref={ref} position={[x, 0.55, 0]}>
-            <mesh position={[0, -0.26, 0]} material={M.robe} castShadow>
+            <mesh position={[0, -0.26, 0]} material={robeMat} castShadow>
               <cylinderGeometry args={[0.065, 0.08, 0.52, 10]} />
             </mesh>
             <mesh position={[0, -0.55, 0]} material={M.skin}>
@@ -280,6 +355,7 @@ export function Player() {
             <sphereGeometry args={[1, 10, 8]} />
           </mesh>
         </group>
+      </group>
       </group>
     </group>
   );

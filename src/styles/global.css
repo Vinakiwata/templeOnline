@@ -1792,3 +1792,219 @@ p {
     font-size: 32px;
   }
 }
+
+/* ── Bản đồ chùa ───────────────────────────────────────────── */
+.map-svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+.minimap {
+  position: absolute;
+  top: calc(68px + env(safe-area-inset-top));
+  right: 12px;
+  width: 112px;
+  height: 196px;
+  padding: 0;
+  border-radius: 14px;
+  overflow: hidden;
+  border: 2px solid rgba(255, 247, 234, 0.6);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+  cursor: pointer;
+  background: #7f9a52;
+}
+.sheet--map {
+  width: min(760px, calc(100% - 24px));
+  top: calc(64px + env(safe-area-inset-top));
+  bottom: calc(12px + env(safe-area-inset-bottom));
+  max-height: none;
+  display: flex;
+  flex-direction: column;
+}
+.map-layout {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-template-rows: minmax(0, 1fr) auto;
+  gap: 12px;
+}
+@media (min-width: 640px) {
+  .map-layout {
+    grid-template-columns: minmax(0, 1fr) 220px;
+    grid-template-rows: minmax(0, 1fr);
+  }
+}
+.map-frame {
+  min-height: 0;
+  border-radius: 14px;
+  overflow: hidden;
+  background: #7f9a52;
+  display: flex;
+  justify-content: center;
+}
+.map-frame .map-svg {
+  height: 100%;
+  width: auto;
+  max-width: 100%;
+}
+.map-pin {
+  cursor: pointer;
+}
+.map-pin circle {
+  fill: #fff7ea;
+  stroke: #2b2118;
+  stroke-width: 0.4;
+}
+.map-pin text {
+  font-family: var(--font-ui);
+  font-size: 2.6px;
+  font-weight: 600;
+  fill: #2b2118;
+  paint-order: stroke;
+  stroke: rgba(255, 250, 240, 0.9);
+  stroke-width: 0.8px;
+}
+.map-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+@media (min-width: 640px) {
+  .map-list {
+    flex-direction: column;
+    overflow-x: visible;
+    overflow-y: auto;
+  }
+}
+.map-go {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  width: 100%;
+  min-height: 40px;
+  padding: 0 12px;
+  border-radius: 10px;
+  border: 1px solid var(--line);
+  background: var(--card);
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  white-space: nowrap;
+  text-align: left;
+}
+.map-go:hover {
+  border-color: var(--gold);
+}
+
+/* ── Nghe giảng ────────────────────────────────────────────── */
+.sheet--dharma {
+  width: min(560px, calc(100% - 24px));
+  max-height: calc(100% - 90px);
+  display: flex;
+  flex-direction: column;
+}
+.dharma-tabs {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+  margin-bottom: 10px;
+}
+.dharma-tabs .chip {
+  white-space: nowrap;
+}
+.dharma-body {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  font-family: var(--font-serif);
+  font-size: 17px;
+  line-height: 1.75;
+  color: var(--ink-2);
+}
+.dharma-body p {
+  padding: 6px 10px;
+  margin: 0 -10px 4px;
+  border-radius: 10px;
+  transition: background 0.3s ease;
+}
+.dharma-body p.is-reading {
+  background: rgba(233, 176, 77, 0.18);
+}
+.dharma-note {
+  margin-top: 8px;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+/* ── Chọn nhân vật ─────────────────────────────────────────── */
+.sheet--profile {
+  top: 50%;
+  bottom: auto;
+  transform: translate(-50%, -50%);
+  animation: none;
+  width: min(420px, calc(100% - 24px));
+}
+.sheet--profile h2 {
+  margin-bottom: 14px;
+}
+.gender-pick {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+.gender-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 12px 8px 10px;
+  border-radius: 16px;
+  border: 2px solid var(--line);
+  background: var(--card);
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 15px;
+  transition: border-color 0.2s ease, background 0.2s ease;
+}
+.gender-card.is-active {
+  border-color: var(--lacquer);
+  background: #fbefe2;
+}
+.sheet--profile .field input {
+  width: 100%;
+  flex: none;
+}
+
+/* ── Thọ trai ──────────────────────────────────────────────── */
+.sheet--meal {
+  width: min(460px, calc(100% - 24px));
+}
+.meal-verse {
+  font-family: var(--font-serif);
+  font-size: 19px;
+  line-height: 1.7;
+  color: var(--ink);
+  min-height: 3.4em;
+}
+.meal-dots {
+  display: flex;
+  gap: 6px;
+  margin-top: 12px;
+}
+.meal-dots span {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--line);
+}
+.meal-dots span.is-on {
+  background: var(--gold);
+}

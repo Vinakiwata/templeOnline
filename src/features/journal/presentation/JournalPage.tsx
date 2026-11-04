@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { clearActivityHistory, getActivityHistory, subscribeActivities } from "../application/activityService";
-import { getGuestSession, updateGuestName } from "../../../shared/lib/guest";
+import { GENDER_LABELS, getGuestSession, updateGuestName, updateGuestProfile, type Gender } from "../../../shared/lib/guest";
 import { ACTIVITY_LABELS, type ActivityRecord, type ActivityType } from "../../../shared/types/activity";
 import { formatDuration, formatRelative } from "../../../shared/lib/format";
 import { getSutra } from "../../sutra/data/sutras";
@@ -64,6 +64,23 @@ export function JournalPage() {
 
       <section className="card profile">
         <h2>Hồ sơ</h2>
+        <div className="field">
+          <span>Nhân vật đi chùa</span>
+          <div className="filters" role="radiogroup" aria-label="Giới tính">
+            {(["nam", "nu"] as Gender[]).map((g) => (
+              <button
+                key={g}
+                type="button"
+                role="radio"
+                aria-checked={guest.gender === g}
+                className={`chip ${guest.gender === g ? "is-active" : ""}`}
+                onClick={() => setGuest(updateGuestProfile({ gender: g }))}
+              >
+                {GENDER_LABELS[g]}
+              </button>
+            ))}
+          </div>
+        </div>
         <label className="field">
           <span>Tên hiển thị</span>
           <div className="field__row">

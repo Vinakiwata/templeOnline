@@ -3,6 +3,7 @@ import type { AreaId } from "../domain/world";
 import { detectQuality, type QualityLevel } from "../game/systems/quality";
 import { readJSON, writeJSON } from "../../../shared/lib/storage";
 import { setSoundEnabled } from "../../../shared/audio/sound";
+import { getGuestSession, updateGuestProfile, type Gender } from "../../../shared/lib/guest";
 
 /**
  * UI / application-level state của chùa 3D (PRD 9.1).
@@ -30,7 +31,9 @@ export interface Toast {
   text?: string;
 }
 
-type Panel = "none" | "menu" | "info" | "settings" | "help" | "meditation";
+const initialGuest = getGuestSession();
+
+type Panel = "none" | "profile" | "menu" | "info" | "settings" | "help" | "meditation" | "map" | "dharma" | "meal";
 
 interface TempleState extends Settings {
   currentArea: AreaId;
@@ -39,7 +42,13 @@ interface TempleState extends Settings {
   panelTargetId: string | null;
   busy: boolean;
   toast: Toast | null;
-  incenseLitAt: number | null;
+  /** Thời điểm thắp hương theo từng lư hương (objectId → ms). */
+  incenseLit: Record<string, number>;
+  /** Nhân vật người đi chùa. */
+  playerName: string;
+  playerGender: Gender;
+  profileChosen: boolean;
+  setProfile: (p: { name: string; gender: Gender }) => void;
   flowerCount: number;
 
   setArea: (area: AreaId) => void;
@@ -49,7 +58,7 @@ interface TempleState extends Settings {
   setBusy: (busy: boolean) => void;
   showToast: (title: string, text?: string) => void;
   clearToast: () => void;
-  lightIncense: () => void;
+  lightIncense: (objectId: string) => void;
   addFlower: () => void;
   setSound: (on: boolean) => void;
   setQuality: (q: QualityLevel) => void;
@@ -70,13 +79,26 @@ let toastSeq = 0;
 
 export const useTempleStore = create<TempleState>((set, get) => ({
   ...initialSettings,
-  currentArea: "courtyard",
+  currentArea: "road",
   nearbyId: null,
-  panel: initialSettings.helpSeen ? "none" : "help",
+  panel: !initialGuest.profileChosen ? "profile" : initialSettings.helpSeen ? "none" : "help",
+  playerName: initialGuest.displayName,
+  playerGender: initialGuest.gender,
+  profileChosen: initialGuest.profileChosen,
+  setProfile: ({ name, gender }) => {
+    const g = updateGuestProfile({ displayName: name, gender });
+    const wasChosen = get().profileChosen;
+    set({ playerName: g.displayName, playerGender: g.gender, profileChosen: true });
+    // Lần đầu: sau khi chọn nhân vật thì hiện hướng dẫn điều khiển.
+    if (!wasChosen && !get().helpSeen) set({ panel: "help", panelTargetId: null });
+    else set({ panel: "none", panelTargetId: null });
+    if (!wasChosen) get().showToast(`Chào mừng ${g.displayName}`, "đến Thiện Phúc Tự");
+  },
   panelTargetId: null,
   busy: false,
   toast: null,
-  incenseLitAt: null,
+  // Hương trong Thiền đường luôn được thắp.
+  incenseLit: { "thien-duong": Number.MAX_SAFE_INTEGER, "bep-nha-tru": Number.MAX_SAFE_INTEGER },
   flowerCount: 0,
 
   setArea: (currentArea) => set({ currentArea }),
@@ -100,7 +122,7 @@ export const useTempleStore = create<TempleState>((set, get) => ({
   setBusy: (busy) => set({ busy }),
   showToast: (title, text) => set({ toast: { id: ++toastSeq, title, text } }),
   clearToast: () => set({ toast: null }),
-  lightIncense: () => set({ incenseLitAt: Date.now() }),
+  lightIncense: (objectId) => set((s) => ({ incenseLit: { ...s.incenseLit, [objectId]: Date.now() } })),
   addFlower: () => set((s) => ({ flowerCount: s.flowerCount + 1 })),
   setSound: (soundOn) => {
     setSoundEnabled(soundOn);

@@ -7,6 +7,10 @@ import { endTempleMeditation, startAction } from "../application/actionHandler";
 import { QUALITY_PROFILES, type QualityLevel } from "../game/systems/quality";
 import { MeditationTimer } from "../../meditation/presentation/MeditationTimer";
 import { isPlayerBusy } from "../game/systems/runtime";
+import { MapPanel, MiniMap } from "./TempleMap";
+import { DharmaPanel } from "./DharmaPanel";
+import { ProfilePanel } from "./ProfilePanel";
+import { MealPanel } from "./MealPanel";
 
 export function TempleHud({ isTouch }: { isTouch: boolean }) {
   const navigate = useNavigate();
@@ -58,6 +62,14 @@ export function TempleHud({ isTouch }: { isTouch: boolean }) {
           <button
             type="button"
             className="hud-btn hud-btn--icon"
+            aria-label="Bản đồ"
+            onClick={() => openPanel(panel === "map" ? "none" : "map")}
+          >
+            <IconMap />
+          </button>
+          <button
+            type="button"
+            className="hud-btn hud-btn--icon"
             aria-label="Cài đặt"
             onClick={() => openPanel(panel === "settings" ? "none" : "settings")}
           >
@@ -65,6 +77,8 @@ export function TempleHud({ isTouch }: { isTouch: boolean }) {
           </button>
         </div>
       </div>
+
+      {!isTouch && panel === "none" && <MiniMap />}
 
       {/* Toast */}
       {toast && (
@@ -151,6 +165,10 @@ export function TempleHud({ isTouch }: { isTouch: boolean }) {
         </div>
       )}
 
+      {panel === "profile" && <ProfilePanel />}
+      {panel === "meal" && <MealPanel />}
+      {panel === "map" && <MapPanel onClose={closePanel} />}
+      {panel === "dharma" && <DharmaPanel onClose={closePanel} />}
       {panel === "settings" && <SettingsPanel onClose={closePanel} onHelp={() => openPanel("help")} />}
       {panel === "help" && <HelpPanel isTouch={isTouch} onClose={closePanel} />}
     </div>
@@ -198,6 +216,9 @@ function SettingsPanel({ onClose, onHelp }: { onClose: () => void; onHelp: () =>
         <span>Hiển thị FPS (kiểm thử hiệu năng)</span>
       </label>
       <div className="sheet__footer">
+        <button type="button" className="btn btn--ghost" onClick={() => useTempleStore.getState().openPanel("profile")}>
+          Đổi nhân vật
+        </button>
         <button type="button" className="btn btn--ghost" onClick={onHelp}>
           Hướng dẫn điều khiển
         </button>
@@ -243,7 +264,8 @@ function HelpPanel({ isTouch, onClose }: { isTouch: boolean; onClose: () => void
         </ul>
       )}
       <p className="muted">
-        Gợi ý: dâng hương ở lư hương giữa sân, thỉnh chuông ở lầu chuông bên phải, rồi vào chánh điện lễ Phật.
+        Bạn bắt đầu ở chân đồi Thiện Phúc Tự. Đi theo con đường lên cổng Tam quan, dâng hương giữa sân, rồi lần lượt vào Tiền đường,
+        Thiêu hương và Thượng điện. Mở <strong>Bản đồ</strong> để đi nhanh tới bất kỳ khu nào.
       </p>
       <div className="sheet__footer">
         <button type="button" className="btn btn--primary" onClick={onClose}>
@@ -267,6 +289,14 @@ function IconMute() {
     <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
       <path d="M4 10v4h3l5 4V6L7 10H4z" fill="currentColor" stroke="none" />
       <path d="M16 9l5 6M21 9l-5 6" />
+    </svg>
+  );
+}
+function IconMap() {
+  return (
+    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round">
+      <path d="M3 6l6-2 6 2 6-2v14l-6 2-6-2-6 2z" />
+      <path d="M9 4v14M15 6v14" />
     </svg>
   );
 }

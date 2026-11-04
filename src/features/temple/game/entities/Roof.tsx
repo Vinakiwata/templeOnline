@@ -35,9 +35,21 @@ interface RoofProps {
   position?: [number, number, number];
   ridge?: boolean;
   pearl?: boolean;
+  /** Xoay quanh trục Y (π/2 để nóc chạy theo trục Z). */
+  rotationY?: number;
+  material?: THREE.Material;
 }
 
-export function Roof({ width, depth, height, position = [0, 0, 0], ridge = true, pearl = false }: RoofProps) {
+export function Roof({
+  width,
+  depth,
+  height,
+  position = [0, 0, 0],
+  ridge = true,
+  pearl = false,
+  rotationY = 0,
+  material = M.roofTile,
+}: RoofProps) {
   const { geo, ridgeHalf } = useMemo(() => createHipRoofGeometry(width, depth, height), [width, depth, height]);
   const corners: [number, number][] = [
     [1, 1],
@@ -46,12 +58,19 @@ export function Roof({ width, depth, height, position = [0, 0, 0], ridge = true,
     [-1, -1],
   ];
   return (
-    <group position={position}>
-      <mesh geometry={geo} material={M.roofTile} castShadow receiveShadow userData={{ camBlock: true }} />
-      {/* Viền mái */}
-      <mesh position={[0, 0.02, 0]} material={M.roofTileDark}>
-        <boxGeometry args={[width + 0.15, 0.12, depth + 0.15]} />
-      </mesh>
+    <group position={position} rotation-y={rotationY}>
+      <mesh geometry={geo} material={material} castShadow receiveShadow userData={{ camBlock: true }} />
+      {/* Viền mái (khung bốn cạnh, không che trần bên dưới) */}
+      {[-1, 1].map((sz) => (
+        <mesh key={`z${sz}`} position={[0, 0.02, (sz * depth) / 2]} material={M.roofTileDark}>
+          <boxGeometry args={[width + 0.15, 0.12, 0.3]} />
+        </mesh>
+      ))}
+      {[-1, 1].map((sx) => (
+        <mesh key={`x${sx}`} position={[(sx * width) / 2, 0.02, 0]} material={M.roofTileDark}>
+          <boxGeometry args={[0.3, 0.12, depth + 0.15]} />
+        </mesh>
+      ))}
       {/* Đầu đao */}
       {corners.map(([sx, sz]) => (
         <group

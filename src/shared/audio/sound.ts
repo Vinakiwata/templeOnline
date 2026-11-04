@@ -160,6 +160,28 @@ export function playChime(pitch = 1) {
   });
 }
 
+/** Trống bát nhã — tiếng trầm, ngắn. */
+export function playDrum(strength = 1) {
+  const c = getCtx();
+  if (!c || !enabled) return;
+  const now = c.currentTime + 0.005;
+  const bus = c.createGain();
+  bus.gain.value = 0.55 * strength;
+  route(bus);
+  const o = c.createOscillator();
+  o.type = "sine";
+  o.frequency.setValueAtTime(110, now);
+  o.frequency.exponentialRampToValueAtTime(52, now + 0.35);
+  const e = c.createGain();
+  e.gain.setValueAtTime(0.0001, now);
+  e.gain.exponentialRampToValueAtTime(1, now + 0.006);
+  e.gain.exponentialRampToValueAtTime(0.0001, now + 1.1);
+  o.connect(e).connect(bus);
+  o.start(now);
+  o.stop(now + 1.2);
+  noiseBurst(c, bus, now, 0.08, 220, 0.9, 0.7);
+}
+
 /** Mõ gỗ. */
 export function playWoodfish() {
   const c = getCtx();
