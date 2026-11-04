@@ -1,0 +1,2837 @@
+Chùa Online — Product Requirement Document (PRD) & Technical Architecture
+
+Phiên bản: 1.0 — Product Foundation
+Định hướng: 3D Virtual Buddhist Temple
+Nền tảng: Responsive Web, Mobile-first
+Đối tượng: Phật tử và người muốn tìm hiểu Phật giáo
+Mô hình: Miễn phí, ưu tiên phát triển cộng đồng
+
+Tôi sẽ thiết kế Chùa Online theo hướng một không gian chùa 3D trực tuyến, nơi người dùng có thể bước vào chùa, tự do khám phá, lễ bái, đọc kinh, thiền định và kết nối với cộng đồng.
+
+Với lựa chọn 3D chân thực, sản phẩm cần được xem như một dự án kết hợp giữa:
+
+Web application.
+
+3D interactive experience.
+
+Virtual world.
+
+Buddhist cultural content platform.
+
+Community platform.
+
+Điều này ảnh hưởng trực tiếp đến kiến trúc React, game engine, hiệu năng trên mobile và cách tổ chức dữ liệu.
+
+1. Product Vision
+11
+1.1. Tầm nhìn sản phẩm
+
+Chùa Online là không gian chùa Phật giáo trực tuyến, giúp mọi người có thể ghé thăm chùa, thực hành các hoạt động tâm linh, tìm hiểu Phật pháp và kết nối cộng đồng ở bất cứ đâu.
+
+1.2. Product Goals
+
+Goal
+
+	
+
+Mục tiêu
+
+
+
+
+Accessibility
+
+	
+
+Người dùng có thể ghé thăm chùa mọi lúc, mọi nơi
+
+
+
+
+Immersion
+
+	
+
+Tạo cảm giác đang bước vào một ngôi chùa thật
+
+
+
+
+Spiritual
+
+	
+
+Hỗ trợ lễ bái, đọc kinh, thiền định
+
+
+
+
+Education
+
+	
+
+Giúp người mới tìm hiểu Phật giáo
+
+
+
+
+Community
+
+	
+
+Kết nối người dùng thông qua hoạt động chung
+
+
+
+
+Sustainability
+
+	
+
+Duy trì cộng đồng bằng mô hình miễn phí
+
+1.3. Định vị sản phẩm
+
+Chùa Online không nên được định vị đơn thuần là game, cũng không nên chỉ là website đọc kinh.
+
+Định vị phù hợp hơn:
+
+Virtual Buddhist Temple — Digital Spiritual Experience
+
+Game hóa chỉ đóng vai trò giúp người dùng khám phá, tương tác và quay lại thường xuyên. Các hoạt động tâm linh và nội dung Phật giáo vẫn là trọng tâm.
+
+2. Product Scope
+2.1. Phân chia sản phẩm thành các module
+CHÙA ONLINE
+Virtual Buddhist Temple Platform
+
+Virtual Temple
+
+3D world, movement, interaction
+
+Spiritual Activities
+
+Lễ bái, thiền, đọc kinh
+
+Buddhist Knowledge
+
+Kinh sách, giáo lý, văn hóa
+
+Community
+
+Phật tử, đạo tràng, sự kiện
+
+React Web App + 3D Engine + Backend Platform
+
+2.2. Các nhóm người dùng
+
+Persona
+
+	
+
+Mô tả
+
+	
+
+Nhu cầu
+
+
+
+
+Phật tử thường xuyên
+
+	
+
+Có nhu cầu lễ bái và đọc kinh
+
+	
+
+Không gian lễ bái, đọc kinh, thiền
+
+
+
+
+Người mới tìm hiểu
+
+	
+
+Chưa có nhiều kiến thức Phật giáo
+
+	
+
+Nội dung dễ hiểu, hướng dẫn
+
+
+
+
+Người muốn thư giãn
+
+	
+
+Muốn tìm không gian bình an
+
+	
+
+Thiền, âm thanh, cảnh chùa
+
+
+
+
+Thành viên cộng đồng
+
+	
+
+Muốn tham gia hoạt động chung
+
+	
+
+Đạo tràng, sự kiện, kết nối
+
+2.3. MVP Feature Scope
+
+Tôi đề xuất MVP gồm 6 nhóm chức năng:
+
+Module
+
+	
+
+MVP
+
+	
+
+Priority
+
+
+
+
+3D Temple
+
+	
+
+Chánh điện, sân chùa, tượng Phật
+
+	
+
+P0
+
+
+
+
+User
+
+	
+
+Guest, đăng nhập, profile cơ bản
+
+	
+
+P0
+
+
+
+
+Worship
+
+	
+
+Lễ bái, dâng hoa, thắp hương
+
+	
+
+P0
+
+
+
+
+Sutra
+
+	
+
+Đọc kinh, nghe audio
+
+	
+
+P0
+
+
+
+
+Meditation
+
+	
+
+Thiền định đơn giản
+
+	
+
+P1
+
+
+
+
+Community
+
+	
+
+Xem người đang tham gia, sự kiện
+
+	
+
+P1
+
+
+
+
+Donation
+
+	
+
+Quyên góp thực tế
+
+	
+
+P2
+
+
+
+
+Multiplayer
+
+	
+
+Nhiều người cùng tương tác trong 3D
+
+	
+
+P2
+
+Điểm cần lưu ý: Không nên xây dựng multiplayer ngay trong MVP. Trước tiên hãy tạo trải nghiệm 3D ổn định, sau đó mới bổ sung realtime.
+
+3. User Flow
+
+User Flow được chia thành hai phần: trải nghiệm người dùng trên website và luồng tương tác bên trong thế giới 3D.
+
+3.1. Overall User Flow
+3.2. First-time User Journey
+
+Đối với người lần đầu vào Chùa Online, tôi đề xuất không yêu cầu đăng ký ngay.
+
+Nguyên tắc UX
+
+Guest có thể vào chùa ngay.
+
+Không yêu cầu đăng ký để thực hiện hoạt động cơ bản.
+
+Chỉ yêu cầu đăng nhập khi cần lưu nhật ký hoặc đồng bộ dữ liệu.
+
+Không chặn trải nghiệm chính bằng popup đăng ký.
+
+3.3. User Flow — Vào chùa 3D
+10
+3.4. User Flow — Lễ bái
+UX Interaction
+
+Khi người chơi đến gần tượng Phật:
+
+Hiển thị tên tượng và thông tin ngắn.
+
+Hiển thị action menu.
+
+Cho phép lựa chọn lễ bái, dâng hoa hoặc tìm hiểu.
+
+Không tự động kích hoạt nghi thức khi người chơi chỉ đi ngang qua.
+
+3.5. User Flow — Đọc kinh
+
+Đọc kinh là một tính năng độc lập, không nên bắt buộc người dùng phải ở trong thế giới 3D mới sử dụng được.
+
+3.6. User Flow — Thiền định
+
+Các phiên thiền ban đầu có thể là 3, 5, 10 và 15 phút. Người dùng có thể rời phiên bất kỳ lúc nào, không bị phạt khi ngắt giữa chừng.
+
+4. Technical Architecture
+
+Đây là phần quan trọng nhất vì bạn muốn xây dựng bằng React, nhưng trải nghiệm chính lại là một thế giới 3D.
+
+4.1. Lựa chọn công nghệ 3D
+
+Tôi đề xuất sử dụng:
+
+React + TypeScript + Three.js + React Three Fiber (R3F).
+
+React Three Fiber là renderer cho Three.js, cho phép xây dựng scene 3D theo cách khai báo và tích hợp với hệ sinh thái React. 
+React Three Fiber
++1
+
+Recommended Stack
+
+React + TypeScript
+
+Application UI và business features
+
+Three.js
+
+WebGL 3D rendering engine
+
+React Three Fiber
+
+React integration cho Three.js
+Vì sao chọn R3F?
+
+Bạn đã làm việc với React và TypeScript, vì vậy R3F sẽ giúp tận dụng kiến thức hiện có.
+
+Tiêu chí
+
+	
+
+React Three Fiber
+
+
+
+
+Tích hợp React
+
+	
+
+Rất tốt
+
+
+
+
+Component hóa 3D
+
+	
+
+Có
+
+
+
+
+TypeScript
+
+	
+
+Có
+
+
+
+
+Tương tác UI
+
+	
+
+Dễ kết hợp
+
+
+
+
+Ecosystem
+
+	
+
+Three.js
+
+
+
+
+Mobile web
+
+	
+
+Có thể triển khai, cần tối ưu
+
+
+
+
+Learning curve
+
+	
+
+Dễ tiếp cận hơn với React developer
+
+Khi nào nên chọn Babylon.js?
+
+Babylon.js cũng là một lựa chọn đáng cân nhắc. Engine này có hệ thống scene, animation, audio, picking và physics tích hợp khá đầy đủ. 
+Babylon.js
++1
+
+Tiêu chí
+
+	
+
+R3F + Three.js
+
+	
+
+Babylon.js
+
+
+
+
+React-centric development
+
+	
+
+Rất phù hợp
+
+	
+
+Tích hợp qua wrapper
+
+
+
+
+Kiểm soát rendering
+
+	
+
+Linh hoạt
+
+	
+
+Engine quản lý nhiều phần
+
+
+
+
+Scene/game engine features
+
+	
+
+Tự kết hợp thư viện
+
+	
+
+Nhiều tính năng tích hợp
+
+
+
+
+React UI
+
+	
+
+Tự nhiên
+
+	
+
+Có thể kết hợp
+
+
+
+
+Phù hợp Chùa Online
+
+	
+
+Lựa chọn ưu tiên
+
+	
+
+Phương án thay thế
+
+Quyết định kiến trúc: Dùng R3F cho MVP. Không kết hợp cả R3F và Babylon.js trong cùng một game scene.
+
+4.2. High-level Architecture
+Architecture principle
+
+Frontend không được phụ thuộc trực tiếp vào database.
+
+Luồng dữ liệu:
+
+React UI → Application Service → API → Backend Service → Database
+
+Riêng hoạt động 3D:
+
+Player Input → Game Interaction System → Application Event → React UI / Backend
+
+Các hành động trong game không nên gọi API trực tiếp từ từng mesh hoặc component 3D.
+
+4.3. Frontend Technology Stack
+
+Layer
+
+	
+
+Technology
+
+	
+
+Trách nhiệm
+
+
+
+
+Framework
+
+	
+
+React
+
+	
+
+UI
+
+
+
+
+Language
+
+	
+
+TypeScript
+
+	
+
+Type safety
+
+
+
+
+Build
+
+	
+
+Vite
+
+	
+
+Development/build
+
+
+
+
+3D
+
+	
+
+Three.js
+
+	
+
+Rendering
+
+
+
+
+React 3D
+
+	
+
+React Three Fiber
+
+	
+
+Scene components
+
+
+
+
+3D Helpers
+
+	
+
+Drei
+
+	
+
+Camera, controls, loaders
+
+
+
+
+Animation
+
+	
+
+Three.js AnimationMixer / R3F
+
+	
+
+Character animation
+
+
+
+
+State
+
+	
+
+Zustand
+
+	
+
+Client state
+
+
+
+
+Server State
+
+	
+
+TanStack Query
+
+	
+
+API data
+
+
+
+
+Routing
+
+	
+
+React Router
+
+	
+
+Navigation
+
+
+
+
+Styling
+
+	
+
+Tailwind CSS
+
+	
+
+Responsive UI
+
+
+
+
+Validation
+
+	
+
+Zod
+
+	
+
+Validate API / form data
+
+
+
+
+Forms
+
+	
+
+React Hook Form
+
+	
+
+Forms
+
+
+
+
+Testing
+
+	
+
+Vitest + Playwright
+
+	
+
+Unit / E2E
+
+Một số thư viện R3F có thể sử dụng
+
+@react-three/fiber
+
+@react-three/drei
+
+three
+
+zustand
+
+@tanstack/react-query
+
+Lưu ý phiên bản R3F phải tương thích với phiên bản React. Tài liệu hiện tại phân biệt R3F v8 với React 18 và v9 với React 19. 
+React Three Fiber
++1
+
+5. Thiết kế kiến trúc Game 3D
+5.1. Scene Structure
+
+Tôi đề xuất MVP có một scene chính: Temple Main Scene.
+
+11
+Scene hierarchy
+
+TempleScene
+├── Environment
+│   ├── Sky
+│   ├── Terrain
+│   ├── Lighting
+│   └── AmbientEffects
+│
+├── Temple
+│   ├── MainHall
+│   ├── Courtyard
+│   ├── LotusPond
+│   ├── BellTower
+│   └── Garden
+│
+├── SpiritualObjects
+│   ├── BuddhaStatue
+│   ├── IncenseTable
+│   ├── FlowerOffering
+│   └── Bell
+│
+├── Player
+│   ├── CharacterModel
+│   ├── MovementController
+│   └── AnimationController
+│
+├── Camera
+│   ├── MainCamera
+│   └── CameraController
+│
+├── InteractionSystem
+│   ├── InteractionDetection
+│   ├── InteractionPrompt
+│   └── ActionHandler
+│
+└── Audio
+    ├── AmbientAudio
+    ├── TempleBell
+    └── InteractionAudio
+5.2. Player Controller
+
+Người chơi cần điều khiển nhân vật trong chùa.
+
+Desktop controls
+
+Input
+
+	
+
+Action
+
+
+
+
+W / A / S / D
+
+	
+
+Di chuyển
+
+
+
+
+Mouse
+
+	
+
+Điều khiển camera
+
+
+
+
+E
+
+	
+
+Tương tác
+
+
+
+
+Esc
+
+	
+
+Mở menu
+
+
+
+
+Space
+
+	
+
+Có thể dùng để tương tác phụ hoặc hành động tùy thiết kế
+
+Mobile controls
+7
+
+Virtual joystick bên trái.
+
+Camera drag bằng vùng bên phải.
+
+Nút tương tác ở góc dưới.
+
+Nút menu.
+
+Nút điều chỉnh camera.
+
+Hỗ trợ tap để di chuyển nếu muốn đơn giản hóa.
+
+Tôi khuyến nghị mobile MVP dùng camera cố định hoặc camera bán tự động thay vì tự do hoàn toàn.
+
+Player states
+Idle
+Walking
+Running (optional)
+Interacting
+Bowing
+Offering
+Meditating
+
+Không nên cho nhân vật chạy nhanh trong chánh điện. Có thể giới hạn tốc độ hoặc chuyển sang animation đi chậm trong khu vực trang nghiêm.
+
+5.3. Interaction System
+
+Không nên hardcode từng hành động vào từng object 3D. Hãy xây dựng một hệ thống tương tác dùng chung.
+
+Ví dụ:
+
+Tượng Phật có thể lễ bái.
+
+Bàn hoa có thể dâng hoa.
+
+Chuông có thể thỉnh chuông.
+
+Kinh sách có thể mở thư viện.
+
+Khu thiền có thể bắt đầu thiền định.
+
+Interaction architecture
+Interface đề xuất
+export type InteractionAction =
+  | "worship"
+  | "offer_flower"
+  | "light_incense"
+  | "ring_bell"
+  | "read_sutra"
+  | "meditate";
+
+export interface Interactable {
+  id: string;
+  type: string;
+  name: string;
+  position: [number, number, number];
+  actions: InteractionAction[];
+}
+
+Đối tượng 3D chỉ cần cung cấp thông tin tương tác. Logic xử lý sẽ nằm trong Interaction System.
+
+Ví dụ:
+
+const buddhaStatue: Interactable = {
+  id: "buddha-main-hall",
+  type: "buddha_statue",
+  name: "Tượng Phật Thích Ca",
+  position: [0, 0, 0],
+  actions: ["worship", "offer_flower"],
+};
+
+Trong production, nên bổ sung các interface cho metadata, interaction radius, điều kiện hiển thị và trạng thái đối tượng.
+
+5.4. Asset Pipeline — Quy trình tạo thế giới 3D
+
+Đây là phần rất quan trọng đối với một sản phẩm có hình ảnh 3D chân thực.
+
+9
+Pipeline
+3D Artist / Blender
+        ↓
+Modeling + Materials + UV
+        ↓
+Rigging / Animation (nếu cần)
+        ↓
+Export GLB / glTF
+        ↓
+Optimize Mesh + Texture
+        ↓
+Upload Asset Storage
+        ↓
+Load vào Three.js / R3F
+Công cụ đề xuất
+
+Công cụ
+
+	
+
+Mục đích
+
+
+
+
+Blender
+
+	
+
+Modeling, material, animation
+
+
+
+
+glTF / GLB
+
+	
+
+Định dạng asset 3D
+
+
+
+
+glTF Transform
+
+	
+
+Tối ưu asset
+
+
+
+
+Draco
+
+	
+
+Mesh compression khi phù hợp
+
+
+
+
+KTX2 / Basis
+
+	
+
+Texture compression
+
+
+
+
+CDN
+
+	
+
+Phân phối asset
+
+glTF/GLB phù hợp để truyền tải scene và asset 3D trên web. Tuy nhiên, không nên tải toàn bộ ngôi chùa trong một lần.
+
+Asset loading strategy
+
+Load sân chùa trước.
+
+Load chánh điện khi người dùng tiến gần.
+
+Load các khu vực khác theo nhu cầu.
+
+Preload các asset quan trọng.
+
+Cache asset đã tải.
+
+Sử dụng loading progress.
+
+Có fallback khi asset tải thất bại.
+
+Ví dụ:
+
+Temple Entry
+    ├── Load environment
+    ├── Load main temple
+    ├── Load Buddha statue
+    ├── Load player character
+    └── Load ambient audio
+6. Backend Architecture
+
+Tôi đề xuất sử dụng NestJS + PostgreSQL.
+
+NestJS phù hợp với hệ thống TypeScript có nhiều domain module, API và business logic.
+
+6.1. Backend modules
+
+backend/
+├── src/
+│   ├── auth/
+│   ├── users/
+│   ├── profiles/
+│   ├── temple/
+│   ├── spiritual-activities/
+│   ├── worship/
+│   ├── sutras/
+│   ├── meditation/
+│   ├── journal/
+│   ├── community/
+│   ├── events/
+│   ├── notifications/
+│   ├── donations/
+│   ├── admin/
+│   └── common/
+│
+├── prisma/
+│   ├── schema.prisma
+│   └── migrations/
+│
+└── test/
+Module responsibilities
+
+Module
+
+	
+
+Trách nhiệm
+
+
+
+
+Auth
+
+	
+
+Đăng nhập, token, session
+
+
+
+
+Users
+
+	
+
+User account
+
+
+
+
+Profiles
+
+	
+
+Avatar, preferences
+
+
+
+
+Temple
+
+	
+
+Khu vực, nội dung chùa
+
+
+
+
+Worship
+
+	
+
+Lưu hoạt động lễ bái
+
+
+
+
+Sutras
+
+	
+
+Kinh sách và tiến trình đọc
+
+
+
+
+Meditation
+
+	
+
+Phiên thiền
+
+
+
+
+Journal
+
+	
+
+Nhật ký tu tập
+
+
+
+
+Community
+
+	
+
+Đạo tràng, thành viên
+
+
+
+
+Events
+
+	
+
+Sự kiện
+
+
+
+
+Donations
+
+	
+
+Quyên góp thực tế, nếu triển khai
+
+
+
+
+Admin
+
+	
+
+Quản lý nội dung
+
+MVP có thể triển khai dưới dạng modular monolith, chưa cần microservices.
+
+Điều này giảm chi phí vận hành, dễ debug và phù hợp với đội ngũ nhỏ.
+
+6.2. Database Design
+
+Tôi đề xuất PostgreSQL với Prisma ORM.
+
+Entity Relationship Diagram
+Core tables
+users
+
+Field
+
+	
+
+Type
+
+
+
+
+id
+
+	
+
+UUID
+
+
+
+
+email
+
+	
+
+String, nullable for guest
+
+
+
+
+password_hash
+
+	
+
+String, nullable
+
+
+
+
+display_name
+
+	
+
+String
+
+
+
+
+created_at
+
+	
+
+Timestamp
+
+user_profiles
+
+Field
+
+	
+
+Type
+
+
+
+
+user_id
+
+	
+
+UUID
+
+
+
+
+avatar_id
+
+	
+
+String
+
+
+
+
+preferences
+
+	
+
+JSONB
+
+
+
+
+locale
+
+	
+
+String
+
+
+
+
+updated_at
+
+	
+
+Timestamp
+
+temples
+
+Field
+
+	
+
+Type
+
+
+
+
+id
+
+	
+
+UUID
+
+
+
+
+name
+
+	
+
+String
+
+
+
+
+description
+
+	
+
+Text
+
+
+
+
+scene_config
+
+	
+
+JSONB
+
+
+
+
+is_active
+
+	
+
+Boolean
+
+temple_objects
+
+Field
+
+	
+
+Type
+
+
+
+
+id
+
+	
+
+UUID
+
+
+
+
+temple_id
+
+	
+
+UUID
+
+
+
+
+area_id
+
+	
+
+UUID
+
+
+
+
+object_type
+
+	
+
+String
+
+
+
+
+name
+
+	
+
+String
+
+
+
+
+asset_url
+
+	
+
+String
+
+
+
+
+interaction_config
+
+	
+
+JSONB
+
+spiritual_activities
+
+Field
+
+	
+
+Type
+
+
+
+
+id
+
+	
+
+UUID
+
+
+
+
+user_id
+
+	
+
+UUID
+
+
+
+
+activity_type
+
+	
+
+Enum
+
+
+
+
+temple_id
+
+	
+
+UUID
+
+
+
+
+object_id
+
+	
+
+UUID, nullable
+
+
+
+
+started_at
+
+	
+
+Timestamp
+
+
+
+
+completed_at
+
+	
+
+Timestamp
+
+
+
+
+metadata
+
+	
+
+JSONB
+
+sutras
+
+Field
+
+	
+
+Type
+
+
+
+
+id
+
+	
+
+UUID
+
+
+
+
+title
+
+	
+
+String
+
+
+
+
+description
+
+	
+
+Text
+
+
+
+
+content
+
+	
+
+Text
+
+
+
+
+language
+
+	
+
+String
+
+
+
+
+audio_url
+
+	
+
+String, nullable
+
+
+
+
+source
+
+	
+
+String
+
+
+
+
+license
+
+	
+
+String, nullable
+
+sutra_progress
+
+Field
+
+	
+
+Type
+
+
+
+
+id
+
+	
+
+UUID
+
+
+
+
+user_id
+
+	
+
+UUID
+
+
+
+
+sutra_id
+
+	
+
+UUID
+
+
+
+
+current_position
+
+	
+
+Integer
+
+
+
+
+completed_at
+
+	
+
+Timestamp, nullable
+
+meditation_sessions
+
+Field
+
+	
+
+Type
+
+
+
+
+id
+
+	
+
+UUID
+
+
+
+
+user_id
+
+	
+
+UUID
+
+
+
+
+duration_seconds
+
+	
+
+Integer
+
+
+
+
+audio_id
+
+	
+
+String, nullable
+
+
+
+
+completed_at
+
+	
+
+Timestamp
+
+Lưu ý: Không nên lưu vị trí nhân vật 3D liên tục vào database trong MVP. Nếu cần lưu, chỉ lưu vị trí checkpoint hoặc vị trí gần nhất khi rời chùa.
+
+7. API Design
+
+MVP nên dùng REST API. Realtime WebSocket chỉ bổ sung khi có tính năng cộng đồng nhiều người.
+
+7.1. API endpoints
+
+Method
+
+	
+
+Endpoint
+
+	
+
+Chức năng
+
+
+
+
+POST
+
+	
+
+/api/v1/auth/register
+
+	
+
+Đăng ký
+
+
+
+
+POST
+
+	
+
+/api/v1/auth/login
+
+	
+
+Đăng nhập
+
+
+
+
+GET
+
+	
+
+/api/v1/users/me
+
+	
+
+Profile
+
+
+
+
+GET
+
+	
+
+/api/v1/temples
+
+	
+
+Danh sách chùa
+
+
+
+
+GET
+
+	
+
+/api/v1/temples/:id
+
+	
+
+Chi tiết chùa
+
+
+
+
+GET
+
+	
+
+/api/v1/temples/:id/scene
+
+	
+
+Scene configuration
+
+
+
+
+POST
+
+	
+
+/api/v1/activities
+
+	
+
+Ghi nhận hoạt động
+
+
+
+
+GET
+
+	
+
+/api/v1/activities/history
+
+	
+
+Lịch sử
+
+
+
+
+GET
+
+	
+
+/api/v1/sutras
+
+	
+
+Danh sách kinh
+
+
+
+
+GET
+
+	
+
+/api/v1/sutras/:id
+
+	
+
+Chi tiết kinh
+
+
+
+
+PUT
+
+	
+
+/api/v1/sutras/:id/progress
+
+	
+
+Cập nhật tiến trình
+
+
+
+
+POST
+
+	
+
+/api/v1/meditation/sessions
+
+	
+
+Lưu phiên thiền
+
+
+
+
+GET
+
+	
+
+/api/v1/events
+
+	
+
+Danh sách sự kiện
+
+Ví dụ API ghi nhận lễ bái
+
+Request:
+
+POST /api/v1/activities
+{
+  "activityType": "worship",
+  "templeId": "temple-main",
+  "objectId": "buddha-main-hall",
+  "completedAt": "2026-11-04T10:00:00Z"
+}
+
+Response:
+
+{
+  "id": "activity-123",
+  "activityType": "worship",
+  "status": "completed"
+}
+
+Không nên gửi toàn bộ dữ liệu animation hoặc frame state lên backend.
+
+Backend chỉ cần nhận kết quả hoạt động cần lưu.
+
+7.2. Guest User
+
+Guest mode là một yêu cầu quan trọng của sản phẩm.
+
+Có thể triển khai:
+
+Guest session được tạo phía client.
+
+Guest có thể trải nghiệm 3D.
+
+Hoạt động cơ bản không cần đăng nhập.
+
+Khi đăng ký, hệ thống có thể cho phép chuyển guest progress sang account.
+
+Guest session không nên được xem là danh tính đã xác thực. Các hoạt động nhạy cảm như quyên góp, quản lý tài khoản và tương tác có quyền riêng tư phải yêu cầu xác thực phù hợp.
+
+8. Frontend Folder Structure — Production-oriented
+
+Với dự án có nhiều module, tôi đề xuất cấu trúc Feature-based kết hợp phân lớp domain/application/infrastructure cho các feature phức tạp.
+
+chua-online/
+│
+├── apps/
+│   └── web/
+│       ├── src/
+│       │   ├── app/
+│       │   │   ├── router/
+│       │   │   ├── providers/
+│       │   │   └── layouts/
+│       │   │
+│       │   ├── features/
+│       │   │   ├── auth/
+│       │   │   ├── home/
+│       │   │   ├── temple/
+│       │   │   │   ├── domain/
+│       │   │   │   ├── application/
+│       │   │   │   ├── infrastructure/
+│       │   │   │   ├── presentation/
+│       │   │   │   └── game/
+│       │   │   │       ├── scenes/
+│       │   │   │       ├── entities/
+│       │   │   │       ├── controllers/
+│       │   │   │       ├── interactions/
+│       │   │   │       └── systems/
+│       │   │   │
+│       │   │   ├── worship/
+│       │   │   ├── sutra/
+│       │   │   ├── meditation/
+│       │   │   ├── journal/
+│       │   │   ├── community/
+│       │   │   └── profile/
+│       │   │
+│       │   ├── shared/
+│       │   │   ├── ui/
+│       │   │   ├── hooks/
+│       │   │   ├── utils/
+│       │   │   ├── types/
+│       │   │   └── api/
+│       │   │
+│       │   ├── assets/
+│       │   └── main.tsx
+│       │
+│       └── package.json
+│
+├── apps/
+│   └── api/
+│       └── src/
+│
+├── packages/
+│   ├── shared-types/
+│   ├── shared-utils/
+│   └── game-config/
+│
+├── assets-3d/
+│   ├── temple/
+│   ├── characters/
+│   ├── statues/
+│   ├── props/
+│   └── audio/
+│
+├── docs/
+│   ├── prd/
+│   ├── architecture/
+│   ├── api/
+│   └── game-design/
+│
+└── package.json
+Vì sao dùng monorepo?
+
+Frontend và backend dùng chung TypeScript types.
+
+Game configuration có thể chia sẻ.
+
+Dễ quản lý API contract.
+
+Thuận tiện cho CI/CD.
+
+Hỗ trợ phát triển nhiều ứng dụng sau này.
+
+Tuy nhiên, nếu MVP chỉ có một frontend và backend nhỏ, có thể bắt đầu bằng hai project riêng. Monorepo không phải yêu cầu bắt buộc.
+
+9. State Management Strategy
+
+Đây là một vấn đề cần thiết kế kỹ vì ứng dụng có cả React UI và 3D scene.
+
+Tôi đề xuất phân chia state thành 3 nhóm.
+
+9.1. State categories
+
+State
+
+	
+
+Ví dụ
+
+	
+
+Công nghệ
+
+
+
+
+UI State
+
+	
+
+Modal, menu, selected tab
+
+	
+
+Zustand
+
+
+
+
+Server State
+
+	
+
+Profile, kinh sách, history
+
+	
+
+TanStack Query
+
+
+
+
+Game Runtime State
+
+	
+
+Player position, camera, animation
+
+	
+
+Game runtime / R3F
+
+Tránh lỗi phổ biến
+
+Không nên lưu toàn bộ vị trí player, camera và animation state trong Zustand rồi trigger React render mỗi frame.
+
+Ví dụ không nên:
+
+setPlayerPosition(position); // 60 lần/giây
+
+Điều này có thể gây re-render không cần thiết.
+
+Thay vào đó:
+
+Game runtime quản lý frame state.
+
+React nhận những state cần hiển thị.
+
+Zustand chỉ lưu trạng thái game ở mức ứng dụng.
+
+Backend chỉ lưu state cần persistence.
+
+Ví dụ Zustand store
+import { create } from "zustand";
+
+type TempleStore = {
+  currentArea: string;
+  selectedObjectId: string | null;
+  isInteractionOpen: boolean;
+
+  setCurrentArea: (area: string) => void;
+  selectObject: (id: string | null) => void;
+  setInteractionOpen: (open: boolean) => void;
+};
+
+export const useTempleStore = create<TempleStore>((set) => ({
+  currentArea: "courtyard",
+  selectedObjectId: null,
+  isInteractionOpen: false,
+
+  setCurrentArea: (area) => set({ currentArea: area }),
+
+  selectObject: (id) => set({ selectedObjectId: id }),
+
+  setInteractionOpen: (open) =>
+    set({ isInteractionOpen: open }),
+}));
+10. 3D Performance Architecture — Ưu tiên Mobile
+
+Đây là rủi ro kỹ thuật lớn nhất của Chùa Online.
+
+Bạn muốn 3D chân thực, nhưng người dùng sẽ truy cập bằng điện thoại, bao gồm các thiết bị có GPU và bộ nhớ hạn chế.
+
+Three.js có hướng dẫn riêng về responsive rendering và xử lý màn hình high-DPI. Đặc biệt, render ở độ phân giải quá cao có thể làm tăng đáng kể tải GPU trên mobile. 
+Three.js
++1
+
+10.1. Performance Strategy
+Performance priorities
+P0
+
+Mobile performance
+
+Ổn định FPS, tải nhanh, tránh nóng máy
+P0
+
+Asset optimization
+
+Giảm kích thước model và texture
+P1
+
+Dynamic quality
+
+Điều chỉnh chất lượng theo thiết bị
+P1
+
+Scene streaming
+
+Chỉ tải khu vực cần thiết
+10.2. Quality Profiles
+
+Profile
+
+	
+
+Thiết bị
+
+	
+
+Rendering
+
+
+
+
+Low
+
+	
+
+Mobile yếu
+
+	
+
+Texture thấp, ít shadow
+
+
+
+
+Medium
+
+	
+
+Mobile phổ thông
+
+	
+
+Texture vừa, shadow hạn chế
+
+
+
+
+High
+
+	
+
+Desktop / mobile mạnh
+
+	
+
+Texture cao, lighting tốt
+
+10.3. Các kỹ thuật tối ưu
+
+Giới hạn devicePixelRatio.
+
+Giảm số lượng draw calls.
+
+Sử dụng instanced rendering cho các vật thể lặp.
+
+Dùng texture atlas khi phù hợp.
+
+Hạn chế real-time shadow.
+
+Dùng baked lighting cho kiến trúc chùa.
+
+Culling vật thể ngoài camera.
+
+Load asset theo khu vực.
+
+Dùng LOD cho vật thể có nhiều mức chi tiết.
+
+Tắt hoặc giảm animation khi tab không hoạt động.
+
+Không render game khi scene đang bị ẩn nếu không cần thiết.
+
+10.4. FPS Target
+
+Đây là mục tiêu kỹ thuật ban đầu để kiểm thử, không phải kết quả đã đo.
+
+Device profile
+
+	
+
+Target
+
+
+
+
+Mobile phổ thông
+
+	
+
+30 FPS ổn định
+
+
+
+
+Mobile mạnh
+
+	
+
+45–60 FPS
+
+
+
+
+Desktop
+
+	
+
+60 FPS
+
+Tôi khuyến nghị MVP ưu tiên 30 FPS ổn định trên mobile phổ thông hơn là cố đạt 60 FPS nhưng thường xuyên drop frame.
+
+11. Security & Privacy
+
+Chùa Online có tài khoản, lịch sử hoạt động và có thể có cộng đồng. Vì vậy cần thiết kế bảo mật ngay từ đầu.
+
+11.1. Security requirements
+
+HTTPS.
+
+Authentication.
+
+Authorization.
+
+Input validation.
+
+Rate limiting.
+
+XSS protection.
+
+CSRF protection nếu sử dụng cookie-based authentication.
+
+API validation.
+
+Không lưu password dạng plaintext.
+
+Không đưa secret vào frontend.
+
+Kiểm soát quyền admin.
+
+Bảo vệ dữ liệu cá nhân.
+
+11.2. Guest security
+
+Guest mode cần tránh:
+
+Giả mạo user ID.
+
+Gửi request hoạt động hàng loạt.
+
+Tạo dữ liệu giả trong community.
+
+Lạm dụng API.
+
+Guest nên có session ID ngẫu nhiên, giới hạn rate và không có quyền thực hiện các hành động nhạy cảm.
+
+11.3. Community moderation
+
+Cần chuẩn bị:
+
+Report user.
+
+Block user.
+
+Kiểm duyệt nội dung.
+
+Quản lý bình luận.
+
+Chặn spam.
+
+Quy định cộng đồng.
+
+Quy trình xử lý nội dung xúc phạm tôn giáo.
+
+Với nội dung Phật giáo, moderation không chỉ xử lý spam mà còn cần bảo vệ sự tôn trọng giữa các truyền thống và người dùng.
+
+12. Product Requirements — Acceptance Criteria
+
+Các yêu cầu dưới đây dùng để xác định khi nào MVP đủ điều kiện phát hành.
+
+12.1. 3D Temple
+
+ID
+
+	
+
+Requirement
+
+	
+
+Acceptance Criteria
+
+
+
+
+TEM-001
+
+	
+
+Load chùa
+
+	
+
+Người dùng vào được scene chùa
+
+
+
+
+TEM-002
+
+	
+
+Player movement
+
+	
+
+Di chuyển được bằng desktop và mobile
+
+
+
+
+TEM-003
+
+	
+
+Camera
+
+	
+
+Camera không xuyên tường hoặc gây khó điều khiển
+
+
+
+
+TEM-004
+
+	
+
+Interaction
+
+	
+
+Nhận diện được đối tượng tương tác
+
+
+
+
+TEM-005
+
+	
+
+Loading
+
+	
+
+Có loading indicator
+
+
+
+
+TEM-006
+
+	
+
+Error handling
+
+	
+
+Có fallback khi 3D không khởi tạo được
+
+12.2. Worship
+
+ID
+
+	
+
+Requirement
+
+	
+
+Acceptance Criteria
+
+
+
+
+WOR-001
+
+	
+
+Lễ bái
+
+	
+
+Có animation lễ bái
+
+
+
+
+WOR-002
+
+	
+
+Dâng hoa
+
+	
+
+Có thể thực hiện hành động dâng hoa
+
+
+
+
+WOR-003
+
+	
+
+Thắp hương
+
+	
+
+Có hiệu ứng phù hợp
+
+
+
+
+WOR-004
+
+	
+
+Interaction prompt
+
+	
+
+Chỉ hiện khi đủ gần đối tượng
+
+
+
+
+WOR-005
+
+	
+
+Activity history
+
+	
+
+Hoạt động được lưu nếu user đăng nhập
+
+12.3. Sutra
+
+ID
+
+	
+
+Requirement
+
+	
+
+Acceptance Criteria
+
+
+
+
+SUT-001
+
+	
+
+Thư viện kinh
+
+	
+
+Có danh sách kinh
+
+
+
+
+SUT-002
+
+	
+
+Reader
+
+	
+
+Nội dung đọc được trên mobile
+
+
+
+
+SUT-003
+
+	
+
+Audio
+
+	
+
+Có thể phát và dừng audio
+
+
+
+
+SUT-004
+
+	
+
+Progress
+
+	
+
+Lưu tiến trình khi đăng nhập
+
+12.4. Responsive & Performance
+
+ID
+
+	
+
+Requirement
+
+	
+
+Acceptance Criteria
+
+
+
+
+PER-001
+
+	
+
+Mobile
+
+	
+
+Có thể sử dụng bằng touch
+
+
+
+
+PER-002
+
+	
+
+Rendering
+
+	
+
+Đạt target FPS trên thiết bị kiểm thử
+
+
+
+
+PER-003
+
+	
+
+Loading
+
+	
+
+Có trạng thái loading và error
+
+
+
+
+PER-004
+
+	
+
+Memory
+
+	
+
+Không tăng bộ nhớ liên tục khi chơi
+
+
+
+
+PER-005
+
+	
+
+Fallback
+
+	
+
+Người dùng vẫn đọc kinh nếu thiết bị không hỗ trợ 3D
+
+13. Development Roadmap
+
+Tôi đề xuất chia thành 5 giai đoạn, mỗi giai đoạn có deliverable rõ ràng.
+
+Roadmap dự kiến
+
+Phase 1 — Product & Technical Prototype
+
+2–3 tuần
+
+PRD và UX flow.
+
+Chọn visual style.
+
+Prototype Three.js/R3F.
+
+Kiểm tra mobile WebGL.
+
+Xây dựng một scene chùa đơn giản.
+
+Phase 2 — 3D MVP
+
+4–6 tuần
+
+Chánh điện.
+
+Player movement.
+
+Camera.
+
+Interaction system.
+
+Lễ bái.
+
+Audio.
+
+Phase 3 — Spiritual Features
+
+3–4 tuần
+
+Đọc kinh.
+
+Thiền định.
+
+Guest mode.
+
+User profile.
+
+Nhật ký.
+
+Phase 4 — Community
+
+3–5 tuần
+
+Sự kiện.
+
+Cộng đồng.
+
+Lưu lịch sử.
+
+Moderation.
+
+Phase 5 — Public Beta
+
+2–3 tuần
+
+Performance testing.
+
+Mobile testing.
+
+Security testing.
+
+User feedback.
+
+Beta launch.
+
+Thời gian trên là ước lượng ban đầu cho một nhóm nhỏ đã có kinh nghiệm phát triển web. Khối lượng xây dựng asset 3D chân thực có thể làm thay đổi đáng kể tiến độ, nhất là khi cần thuê artist hoặc tạo mô hình kiến trúc chùa có độ chi tiết cao.
+
+14. Những quyết định cần chốt trước khi bắt đầu code
+
+Tôi muốn nhấn mạnh 5 quyết định có ảnh hưởng lớn đến kiến trúc Chùa Online.
+
+Quyết định
+
+	
+
+Đề xuất của tôi
+
+
+
+
+3D Engine
+
+	
+
+React Three Fiber + Three.js
+
+
+
+
+Game perspective
+
+	
+
+Third-person, camera bán tự động
+
+
+
+
+World
+
+	
+
+Một ngôi chùa, một scene chính
+
+
+
+
+Backend
+
+	
+
+NestJS + PostgreSQL
+
+
+
+
+Multiplayer
+
+	
+
+Chưa triển khai trong MVP
+
+Đặc biệt, tôi không khuyến nghị bắt đầu với một thế giới 3D quá rộng. Hãy xây dựng một chánh điện đẹp, có thể tương tác, chạy tốt trên mobile trước.
+
+15. Bước tiếp theo: Xây dựng Technical Prototype
+
+Đối với dự án này, tôi đề xuất bước tiếp theo không phải viết toàn bộ backend ngay, mà là xây dựng một prototype 3D có thể chạy trên trình duyệt.
+
+Prototype đầu tiên nên có:
+
+10
+
+Một ngôi chùa 3D.
+
+Một tượng Phật.
+
+Một nhân vật có thể di chuyển.
+
+Camera third-person.
+
+Tương tác với tượng Phật.
+
+Animation lễ bái.
+
+Âm thanh chuông chùa.
+
+Responsive trên mobile.
+
+Sau khi prototype chạy ổn định, mới phát triển các module đọc kinh, thiền định, profile và community.
+
+Tôi đề xuất phát triển dự án theo 3 deliverable tiếp theo
+Chọn bước triển khai tiếp theo
+
+Tôi sẽ dựa trên lựa chọn của bạn để xây dựng tài liệu hoặc mã nguồn cụ thể.
+
+Bạn muốn bắt đầu từ đâu?
+
+3D Technical Prototype — xây dựng scene chùa bằng React + R3F
+UI/UX Design — thiết kế các màn hình chi tiết
+Database & Backend — thiết kế schema, API, NestJS
+Implementation Plan — chia task theo sprint và developer
+
+Scene đầu tiên
+
+Chánh điện + sân chùa
+Chỉ chánh điện
+Toàn bộ khuôn viên chùa
+
+Camera
+
+Third-person camera
+First-person camera
+Fixed cinematic camera
+
+Nguồn asset 3D
+
+Dùng asset 3D miễn phí để prototype
+Tạo asset riêng bằng Blender
+Kết hợp asset miễn phí và asset riêng
+Bắt đầu triển khai
+
+Tôi nghiêng về lựa chọn 3D Technical Prototype, vì đây là bước giúp xác minh tính khả thi của toàn bộ ý tưởng Chùa Online trước khi đầu tư lớn vào nội dung và backend.
+
+Tài liệu tham khảo kỹ thuật:
+
+React Three Fiber Documentation
+
+Three.js Documentation
+
+Three.js Responsive Rendering
+
+Babylon.js — Alternative 3D Engine
