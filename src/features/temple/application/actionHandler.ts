@@ -13,6 +13,8 @@ import { recordActivity } from "../../journal/application/activityService";
 /** Thời lượng animation & các mốc (giây) cho từng nghi thức. */
 export const ACTION_TIMELINE: Partial<Record<InteractionAction, { duration: number; keyframes: number[] }>> = {
   worship: { duration: 6.3, keyframes: [1.1, 3.1, 5.1] },
+  // Quỳ lạy: chắp tay → quỳ xuống → ba lạy (trán chạm đất) → đứng dậy
+  kneel_bow: { duration: 10.0, keyframes: [2.5, 5.1, 7.7] },
   offer_flower: { duration: 2.8, keyframes: [1.5] },
   light_incense: { duration: 3.4, keyframes: [2.0] },
   ring_bell: { duration: 2.0, keyframes: [0.85] },
@@ -21,6 +23,7 @@ export const ACTION_TIMELINE: Partial<Record<InteractionAction, { duration: numb
 
 const COMPLETE_MESSAGES: Partial<Record<InteractionAction, [string, string]>> = {
   worship: ["Nam Mô Bổn Sư Thích Ca Mâu Ni Phật", "Nguyện cho tâm được an tịnh."],
+  kneel_bow: ["Thành tâm đảnh lễ", "Ba lạy cung kính — buông xả ngã mạn, nguyện tâm khiêm hạ."],
   offer_flower: ["Đóa sen đã được dâng lên", "Hoa nở rồi tàn — nhắc ta trân quý hiện tại."],
   light_incense: ["Ba nén tâm hương đã được dâng", "Giới hương · Định hương · Tuệ hương"],
   ring_bell: ["Tiếng chuông ngân vang", "Thở vào, thở ra — trở về với chính mình."],
@@ -70,6 +73,7 @@ export function handleKeyframe(action: InteractionAction, index: number, objectI
   const store = useTempleStore.getState();
   switch (action) {
     case "worship":
+    case "kneel_bow":
       playSmallBell();
       break;
     case "light_incense":

@@ -3,6 +3,7 @@ import { DHARMA_TALKS } from "../../sutra/data/dharmaTalks";
 import { recordActivity } from "../../journal/application/activityService";
 import { useTempleStore } from "../application/templeStore";
 import { playSmallBell } from "../../../shared/audio/sound";
+import { radioGroupKeys, radioTabIndex } from "../../../shared/ui/radioGroup";
 
 /** Nghe giảng tại Giảng đường: chọn bài pháp, đọc hoặc nghe máy đọc (Web Speech). */
 export function DharmaPanel({ onClose }: { onClose: () => void }) {
@@ -87,13 +88,14 @@ export function DharmaPanel({ onClose }: { onClose: () => void }) {
           ×
         </button>
       </div>
-      <div className="dharma-tabs" role="tablist">
+      <div className="dharma-tabs" role="radiogroup" aria-label="Chọn bài giảng" onKeyDown={radioGroupKeys}>
         {DHARMA_TALKS.map((t) => (
           <button
             key={t.id}
             type="button"
-            role="tab"
-            aria-selected={t.id === talkId}
+            role="radio"
+            aria-checked={t.id === talkId}
+            tabIndex={radioTabIndex(t.id === talkId)}
             className={`chip ${t.id === talkId ? "is-active" : ""}`}
             onClick={() => pick(t.id)}
           >

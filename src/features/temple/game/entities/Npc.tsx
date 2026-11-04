@@ -2,6 +2,7 @@ import { useMemo, useRef } from "react";
 import * as THREE from "three";
 import { useFrame } from "@react-three/fiber";
 import { M } from "./materials";
+import { CrossCollar, darker, Hand, Head, Limb, skirtGeo, sleeveGeo, torsoGeo, type FaceKind, type HairKind } from "./PersonParts";
 import { NPCS, type NpcPose, type NpcSpec, type Waypoint } from "../../domain/npcs";
 import { groundHeight } from "../../domain/world";
 import { npcColliders, playerRuntime, renderSettings } from "../systems/runtime";
@@ -13,7 +14,6 @@ import { npcColliders, playerRuntime, renderSettings } from "../systems/runtime"
  */
 const damp = THREE.MathUtils.damp;
 const SKIN = new THREE.MeshStandardMaterial({ color: "#e4bf9a", roughness: 0.75 });
-const STRAW = new THREE.MeshStandardMaterial({ color: "#dcc78f", roughness: 0.85, side: THREE.DoubleSide });
 
 function dampAngle(current: number, target: number, lambda: number, dt: number) {
   let diff = target - current;
@@ -65,6 +65,7 @@ function Npc({ spec, index }: { spec: NpcSpec; index: number }) {
         waitFace: null as [number, number] | null,
         phase: seed,
         sit: spec.station && isSeated(spec.station.pose) ? 1 : 0,
+        kneel: spec.station?.pose === "kneel" ? 1 : 0,
         visible: true,
         check: seed % 0.3,
       };
@@ -139,6 +140,7 @@ function Npc({ spec, index }: { spec: NpcSpec; index: number }) {
     const seatY = spec.station?.seat ?? 0;
     const seated = isSeated(pose);
     s.sit = damp(s.sit, seated ? 1 : 0, 4, dt);
+    s.kneel = damp(s.kneel, pose === "kneel" ? 1 : 0, 4, dt);
     g.position.set(s.x, groundHeight(s.x, s.z) + (seated ? seatY : 0), s.z);
     g.rotation.y = s.rot;
     if (col) {
@@ -163,6 +165,15 @@ function Npc({ spec, index }: { spec: NpcSpec; index: number }) {
         pitch = u < 0.5 ? Math.pow(Math.sin(u * 2 * Math.PI), 2) * 0.8 : 0;
         aLx = aRx = -1.05;
         aZ = 0.58;
+        break;
+      }
+      case "kneel": {
+        // Quỳ lạy liên tục: mỗi lạy ~4.4s, nghỉ giữa các lạy.
+        const u = (t % 4.4) / 4.4;
+        const bow = u < 0.6 ? Math.pow(Math.sin((u / 0.6) * Math.PI), 2) : 0;
+        pitch = bow * 1.42;
+        aLx = aRx = -1.05 + bow * 0.8;
+        aZ = 0.58 - bow * 0.42;
         break;
       }
       case "pray":
@@ -225,7 +236,7 @@ function Npc({ spec, index }: { spec: NpcSpec; index: number }) {
     }
     const breathe = Math.sin(t * 1.4) * 0.01;
     torso.current.rotation.x = damp(torso.current.rotation.x, pitch, 8, dt);
-    torso.current.position.y = THREE.MathUtils.lerp(0.95, 0.42, s.sit) + breathe + (pose === "walk" ? Math.abs(Math.sin(s.phase * 2)) * 0.025 : 0);
+    torso.current.position.y = THREE.MathUtils.lerp(THREE.MathUtils.lerp(0.95, 0.42, s.sit), 0.52, s.kneel) + breathe + (pose === "walk" ? Math.abs(Math.sin(s.phase * 2)) * 0.025 : 0);
     armL.current.rotation.x = damp(armL.current.rotation.x, aLx, 8, dt);
     armR.current.rotation.x = damp(armR.current.rotation.x, aRx, 8, dt);
     armL.current.rotation.z = damp(armL.current.rotation.z, aZ, 8, dt);
@@ -234,82 +245,66 @@ function Npc({ spec, index }: { spec: NpcSpec; index: number }) {
       const stepZ = pose === "walk" ? Math.sin(s.phase * 2) * 0.15 : 0;
       footL.current.position.z = 0.06 + stepZ;
       footR.current.position.z = 0.06 - stepZ;
-      footL.current.visible = footR.current.visible = s.sit < 0.5;
+      footL.current.visible = footR.current.visible = s.sit < 0.5 && s.kneel < 0.5;
     }
     if (skirt.current) {
       const k = s.sit;
-      skirt.current.scale.set(1 + k * 0.9, 1 - k * 0.68, 1 + k * 0.5);
-      skirt.current.position.y = THREE.MathUtils.lerp(0.5, 0.16, k);
+      const kn = s.kneel;
+      skirt.current.scale.set(1 + k * 0.9 + kn * 0.3, Math.max(0.3, 1 - k * 0.68 - kn * 0.48), 1 + k * 0.5 + kn * 0.4);
+      skirt.current.position.y = THREE.MathUtils.lerp(0.5, 0.16, k) - kn * 0.24;
     }
     if (broom.current) broom.current.rotation.z = pose === "sweep" ? Math.sin(t * 1.8) * 0.45 : 0;
     if (moStick.current) moStick.current.rotation.x = pose === "woodfish" ? -Math.abs(Math.sin(t * 3.2)) * 0.6 : 0;
   });
 
   const head = spec.look.head;
+  const face: FaceKind =
+    head === "novice" ? "novice" : head === "monk" ? (spec.id.includes("tru-tri") ? "elder" : "monk") : head === "hairM" ? "calm" : "lady";
+  const hair: HairKind = head;
   return (
     <group ref={root} scale={scale}>
-      <mesh ref={skirt} position={[0, 0.5, 0]} material={robe} castShadow>
-        <cylinderGeometry args={[0.2, 0.31, 1.0, 14]} />
+      <mesh ref={skirt} geometry={skirtGeo()} position={[0, 0.5, 0]} material={robe} castShadow />
+      <mesh ref={footL} position={[-0.09, 0.035, 0.06]} scale={[0.055, 0.04, 0.115]} material={M.shoe}>
+        <sphereGeometry args={[1, 10, 8]} />
       </mesh>
-      <mesh ref={footL} position={[-0.1, 0.03, 0.06]} material={M.shoe}>
-        <boxGeometry args={[0.1, 0.06, 0.22]} />
-      </mesh>
-      <mesh ref={footR} position={[0.1, 0.03, 0.06]} material={M.shoe}>
-        <boxGeometry args={[0.1, 0.06, 0.22]} />
+      <mesh ref={footR} position={[0.09, 0.035, 0.06]} scale={[0.055, 0.04, 0.115]} material={M.shoe}>
+        <sphereGeometry args={[1, 10, 8]} />
       </mesh>
       {prop === "mo" && (
-        <mesh position={[0.05, 0.1, 0.5]} scale={[1, 0.75, 1.1]} material={M.lacquer}>
-          <sphereGeometry args={[0.13, 12, 10]} />
-        </mesh>
+        <group position={[0.05, 0.02, 0.5]}>
+          <mesh position={[0, 0.1, 0]} scale={[1, 0.78, 1.12]} material={M.lacquer} castShadow>
+            <sphereGeometry args={[0.13, 16, 12]} />
+          </mesh>
+          <mesh position={[0, 0.1, 0.13]} rotation-x={Math.PI / 2} material={M.lacquerDark}>
+            <torusGeometry args={[0.05, 0.012, 6, 16, Math.PI]} />
+          </mesh>
+          <mesh position={[0, 0.01, 0]} rotation-x={-Math.PI / 2} material={M.robeRed}>
+            <circleGeometry args={[0.18, 18]} />
+          </mesh>
+        </group>
       )}
 
       <group ref={torso} position={[0, 0.95, 0]}>
-        <mesh position={[0, 0.31, 0]} material={robe} castShadow>
-          <cylinderGeometry args={[0.17, 0.21, 0.62, 14]} />
-        </mesh>
+        <mesh geometry={torsoGeo()} material={robe} castShadow />
+        <CrossCollar material={darker(robe, 0.62)} />
+        {[-1, 1].map((sx) => (
+          <mesh key={sx} position={[sx * 0.2, 0.56, 0]} material={robe}>
+            <sphereGeometry args={[0.08, 12, 10]} />
+          </mesh>
+        ))}
         {sash && (
-          <mesh position={[0, 0.33, 0.01]} rotation-z={0.62} material={sash}>
-            <cylinderGeometry args={[0.235, 0.235, 0.16, 14, 1, true]} />
-          </mesh>
+          <>
+            {/* Cà sa vắt vai trái */}
+            <Limb from={[-0.15, 0.64, 0.07]} to={[0.2, 0.1, 0.15]} r1={0.04} r2={0.04} material={sash} />
+            <Limb from={[-0.15, 0.64, -0.07]} to={[0.2, 0.1, -0.14]} r1={0.04} r2={0.04} material={sash} />
+            <mesh position={[-0.17, 0.63, 0]} material={sash}>
+              <sphereGeometry args={[0.06, 10, 8]} />
+            </mesh>
+          </>
         )}
-        <mesh position={[0, 0.6, 0]} scale={[1, 0.45, 0.8]} material={robe}>
-          <sphereGeometry args={[0.22, 14, 8]} />
-        </mesh>
         {/* Đầu */}
-        <group position={[0, 0.8, 0]}>
-          <mesh position={[0, -0.07, 0]} material={SKIN}>
-            <cylinderGeometry args={[0.05, 0.06, 0.1, 8]} />
-          </mesh>
-          <mesh position={[0, 0.06, 0]} material={SKIN} castShadow>
-            <sphereGeometry args={[0.13, 16, 12]} />
-          </mesh>
-          {head === "novice" && (
-            <>
-              <mesh position={[0, 0.17, 0.07]} material={M.hair}>
-                <sphereGeometry args={[0.038, 8, 6]} />
-              </mesh>
-              {[-1, 1].map((sx) => (
-                <mesh key={sx} position={[sx * 0.1, 0.13, -0.05]} material={M.hair}>
-                  <sphereGeometry args={[0.03, 8, 6]} />
-                </mesh>
-              ))}
-            </>
-          )}
-          {(head === "hairM" || head === "hairF" || head === "nonLa") && (
-            <mesh position={[0, 0.08, -0.012]} rotation-x={-0.35} material={M.hair}>
-              <sphereGeometry args={[0.138, 16, 10, 0, Math.PI * 2, 0, Math.PI * (head === "hairM" ? 0.5 : 0.6)]} />
-            </mesh>
-          )}
-          {(head === "hairF" || head === "nonLa") && (
-            <mesh position={[0, 0.04, -0.14]} material={M.hair}>
-              <sphereGeometry args={[0.065, 10, 8]} />
-            </mesh>
-          )}
-          {head === "nonLa" && (
-            <mesh position={[0, 0.2, 0]} material={STRAW} castShadow>
-              <coneGeometry args={[0.32, 0.17, 18, 1, true]} />
-            </mesh>
-          )}
+        <group position={[0, 0.84, 0]}>
+          <Head face={face} hair={hair} skin={SKIN} />
         </group>
         {/* Tay */}
         {(
@@ -319,16 +314,15 @@ function Npc({ spec, index }: { spec: NpcSpec; index: number }) {
           ] as const
         ).map(([ref, x]) => (
           <group key={x} ref={ref} position={[x, 0.55, 0]}>
-            <mesh position={[0, -0.26, 0]} material={robe} castShadow>
-              <cylinderGeometry args={[0.065, 0.085, 0.52, 8]} />
-            </mesh>
-            <mesh position={[0, -0.55, 0]} material={SKIN}>
-              <sphereGeometry args={[0.05, 8, 6]} />
-            </mesh>
+            <mesh geometry={sleeveGeo()} material={robe} castShadow />
+            <Hand skin={SKIN} side={x > 0 ? 1 : -1} at={[0, -0.49, 0]} />
             {x > 0 && prop === "mo" && (
               <group ref={moStick} position={[0, -0.55, 0]}>
                 <mesh position={[0, -0.1, 0.06]} rotation-x={0.6} material={M.woodLight}>
                   <cylinderGeometry args={[0.015, 0.015, 0.26, 6]} />
+                </mesh>
+                <mesh position={[0, -0.21, 0.13]} material={M.woodLight}>
+                  <sphereGeometry args={[0.028, 8, 6]} />
                 </mesh>
               </group>
             )}
@@ -336,12 +330,16 @@ function Npc({ spec, index }: { spec: NpcSpec; index: number }) {
         ))}
         {/* Vật cầm tay */}
         {prop === "beads" && (
-          <mesh position={[0, 0.22, 0.34]} rotation-x={1.2} material={M.wood}>
-            <torusGeometry args={[0.07, 0.014, 6, 16]} />
-          </mesh>
+          <group position={[0, 0.22, 0.34]} rotation-x={1.2}>
+            {Array.from({ length: 18 }, (_, i) => (
+              <mesh key={i} position={[Math.cos((i / 18) * Math.PI * 2) * 0.07, Math.sin((i / 18) * Math.PI * 2) * 0.07, 0]} material={M.wood}>
+                <sphereGeometry args={[0.014, 6, 5]} />
+              </mesh>
+            ))}
+          </group>
         )}
         {prop === "incense" && (
-          <group position={[0, 0.38, 0.36]}>
+          <group position={[0, 0.5, 0.46]}>
             {[-0.03, 0, 0.03].map((dx) => (
               <group key={dx} position={[dx, 0.12, 0]}>
                 <mesh material={M.incenseStick}>

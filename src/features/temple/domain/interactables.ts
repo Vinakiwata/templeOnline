@@ -25,7 +25,8 @@ export interface Interactable {
 }
 
 export const ACTION_LABELS: Record<InteractionAction, { label: string; hint: string }> = {
-  worship: { label: "Lễ bái", hint: "Chắp tay vái ba vái" },
+  worship: { label: "Vái lạy", hint: "Đứng chắp tay vái ba vái" },
+  kneel_bow: { label: "Quỳ lạy", hint: "Quỳ xuống lạy ba lạy" },
   offer_flower: { label: "Dâng hoa", hint: "Dâng một đóa sen" },
   light_incense: { label: "Thắp hương", hint: "Dâng ba nén hương" },
   ring_bell: { label: "Thỉnh chuông", hint: "Một tiếng chuông ngân" },
@@ -96,7 +97,7 @@ export const INTERACTABLES: Interactable[] = [
     anchor: at(POS.quanAm[0], POS.quanAm[1]),
     focus: at(POS.quanAm[0], POS.quanAm[1], 3),
     radius: 7.6,
-    actions: ["worship", "learn"],
+    actions: ["worship", "kneel_bow", "learn"],
     summary: "Đứng giữa ao sen",
     description:
       "Bồ Tát Quán Thế Âm (Avalokiteśvara) tượng trưng cho lòng từ bi, lắng nghe tiếng kêu khổ của chúng sinh. Nhiều ngôi chùa đặt tượng Quán Âm lộ thiên giữa sân hoặc ao sen để Phật tử chiêm bái.",
@@ -120,7 +121,7 @@ export const INTERACTABLES: Interactable[] = [
     anchor: at(-7.5, -29.6),
     focus: at(-7.5, -32.4, 1.5),
     radius: 2.2,
-    actions: ["worship", "learn"],
+    actions: ["worship", "kneel_bow", "learn"],
     summary: "Bên trái Tiền đường",
     description:
       "Đức Ông là ông Cấp Cô Độc (Tu Đạt), vị trưởng giả đã cúng dường khu vườn Kỳ Viên cho Đức Phật và Tăng đoàn. Ngài được tôn làm vị hộ trì Tam bảo, thường ngự bên trái Tiền đường cùng hai vị thị giả.",
@@ -132,7 +133,7 @@ export const INTERACTABLES: Interactable[] = [
     anchor: at(7.5, -29.6),
     focus: at(7.5, -32.4, 1.5),
     radius: 2.2,
-    actions: ["worship", "learn"],
+    actions: ["worship", "kneel_bow", "learn"],
     summary: "Bên phải Tiền đường",
     description:
       "Ban Thánh Hiền thờ tôn giả A Nan Đà — thị giả thân cận của Đức Phật, nổi tiếng đa văn bậc nhất, người trùng tụng lại lời Phật dạy. Hai bên là các vị thị giả. Hai bên Tiền đường còn có tượng Bát bộ Kim Cương hộ pháp.",
@@ -156,7 +157,7 @@ export const INTERACTABLES: Interactable[] = [
     anchor: at(0, -41.6),
     focus: at(0, -47, 2.5),
     radius: 3.2,
-    actions: ["worship", "offer_flower", "learn"],
+    actions: ["worship", "kneel_bow", "offer_flower", "learn"],
     summary: "Nơi tôn nghiêm nhất của chùa",
     description:
       "Thượng điện bài trí tượng Phật từ cao xuống thấp. Hàng trên cùng là Tam Thế Phật (quá khứ, hiện tại, vị lai). Tiếp theo là Di Đà tam tôn: Phật A Di Đà, Bồ Tát Quán Thế Âm và Đại Thế Chí. Kế đến là Đức Phật Thích Ca Mâu Ni, và phía dưới là tòa Cửu Long — Đức Phật đản sinh được chín rồng phun nước tắm.",
@@ -192,7 +193,7 @@ export const INTERACTABLES: Interactable[] = [
     anchor: at(0, -59.4),
     focus: at(0, -63, 1.5),
     radius: 2.8,
-    actions: ["worship", "learn"],
+    actions: ["worship", "kneel_bow", "learn"],
     summary: "Thờ chư vị Tổ sư",
     description:
       "Nhà Tổ (Hậu đường) nằm phía sau Chính điện, thờ các vị Tổ sư có công khai sơn và các vị trụ trì qua nhiều đời. Đây là nơi thể hiện lòng tri ân với những người đã gìn giữ ngôi chùa.",
@@ -204,7 +205,7 @@ export const INTERACTABLES: Interactable[] = [
     anchor: at(0, -69.6),
     focus: at(0, -73, 1.5),
     radius: 2.6,
-    actions: ["worship", "learn"],
+    actions: ["worship", "kneel_bow", "learn"],
     summary: "Tiền Phật hậu Thánh",
     description:
       "Nhiều ngôi chùa Việt theo lối “Tiền Phật hậu Thánh”, phía sau có điện thờ Mẫu. Điện thờ Tam tòa Thánh Mẫu: Mẫu Thượng Thiên (áo đỏ), Mẫu Thượng Ngàn (áo xanh) và Mẫu Thoải (áo trắng) — thể hiện sự hòa quyện giữa Phật giáo và tín ngưỡng dân gian.",
@@ -216,7 +217,7 @@ export const INTERACTABLES: Interactable[] = [
     anchor: at(POS.baoThap[0], POS.baoThap[1] + 4.6),
     focus: at(POS.baoThap[0], POS.baoThap[1], 3),
     radius: 3,
-    actions: ["worship", "learn"],
+    actions: ["worship", "kneel_bow", "learn"],
     summary: "Nơi lưu giữ xá lợi",
     description:
       "Bảo tháp là nơi lưu giữ xá lợi hoặc tro cốt của các bậc cao tăng. Tháp thường có số tầng lẻ, thu nhỏ dần lên trên, có thể đặt phía trước hoặc phía sau khuôn viên chùa.",

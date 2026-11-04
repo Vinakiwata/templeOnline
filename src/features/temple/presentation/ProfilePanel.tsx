@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useTempleStore } from "../application/templeStore";
 import { DEFAULT_NAME, MAX_NAME_LENGTH, type Gender } from "../../../shared/lib/guest";
 import { TEMPLE_NAME } from "../domain/world";
+import { radioGroupKeys, radioTabIndex } from "../../../shared/ui/radioGroup";
 
 /** Chọn nhân vật người đi chùa: Nam / Nữ và tên hiển thị. */
 export function ProfilePanel() {
@@ -19,13 +20,14 @@ export function ProfilePanel() {
     <div className="sheet sheet--profile" role="dialog" aria-label="Chọn nhân vật">
       <p className="eyebrow">{profileChosen ? "Đổi nhân vật" : `Chào mừng đến ${TEMPLE_NAME}`}</p>
       <h2>Người đi chùa hôm nay là ai?</h2>
-      <div className="gender-pick" role="radiogroup" aria-label="Giới tính">
+      <div className="gender-pick" role="radiogroup" aria-label="Giới tính" onKeyDown={radioGroupKeys}>
         {(["nam", "nu"] as Gender[]).map((g) => (
           <button
             key={g}
             type="button"
             role="radio"
             aria-checked={gender === g}
+            tabIndex={radioTabIndex(gender === g)}
             className={`gender-card ${gender === g ? "is-active" : ""}`}
             onClick={() => setGender(g)}
           >

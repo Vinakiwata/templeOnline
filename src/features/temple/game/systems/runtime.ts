@@ -11,6 +11,7 @@ export type PlayerMode =
   | "walking"
   | "running"
   | "bowing"
+  | "kneeling"
   | "offering"
   | "incense"
   | "ringing"
@@ -66,7 +67,7 @@ export const input = {
 
 export function isPlayerBusy() {
   const m = playerRuntime.mode;
-  return m === "bowing" || m === "offering" || m === "incense" || m === "ringing" || playerRuntime.pending !== null;
+  return m === "bowing" || m === "kneeling" || m === "offering" || m === "incense" || m === "ringing" || playerRuntime.pending !== null;
 }
 
 /** Thiết lập hiển thị theo chất lượng (đọc trong useFrame, không gây re-render). */

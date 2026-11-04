@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { MEDITATION_DURATIONS, saveMeditationSession, type MeditationResult } from "../application/meditationService";
 import { playBell, startAmbient, stopAmbient } from "../../../shared/audio/sound";
 import { formatDuration } from "../../../shared/lib/format";
+import { radioGroupKeys, radioTabIndex } from "../../../shared/ui/radioGroup";
 
 type Phase = "choose" | "running" | "done";
 
@@ -84,13 +85,14 @@ export function MeditationTimer({ place, variant = "page", onClose }: Props) {
           <p className="muted">
             Chọn thời gian. Bạn có thể dừng bất cứ lúc nào — mỗi phút an trú đều quý.
           </p>
-          <div className="medi__durations" role="radiogroup" aria-label="Thời gian thiền">
+          <div className="medi__durations" role="radiogroup" aria-label="Thời gian thiền" onKeyDown={radioGroupKeys}>
             {MEDITATION_DURATIONS.map((m) => (
               <button
                 key={m}
                 type="button"
                 role="radio"
                 aria-checked={minutes === m}
+                tabIndex={radioTabIndex(minutes === m)}
                 className={`chip chip--lg ${minutes === m ? "is-active" : ""}`}
                 onClick={() => setMinutes(m)}
               >

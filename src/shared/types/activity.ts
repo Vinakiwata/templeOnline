@@ -4,6 +4,7 @@
  */
 export type InteractionAction =
   | "worship"
+  | "kneel_bow"
   | "offer_flower"
   | "light_incense"
   | "ring_bell"
@@ -26,7 +27,8 @@ export interface ActivityRecord {
 }
 
 export const ACTIVITY_LABELS: Record<ActivityType, string> = {
-  worship: "Lễ bái",
+  worship: "Vái lạy",
+  kneel_bow: "Quỳ lạy",
   offer_flower: "Dâng hoa",
   light_incense: "Thắp hương",
   ring_bell: "Thỉnh chuông",

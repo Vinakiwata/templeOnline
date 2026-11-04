@@ -181,7 +181,7 @@ function TienDuong() {
         <StandingFigure position={[-5.9, Y + f + 0.95, -31.9]} scale={0.62} robe={M.robeBlue} head="hair" holding="fan" />
         {/* Ban Thánh Hiền (phải): tôn giả A Nan Đà */}
         <AltarTiers x={7.5} z={-33.3} y0={f} width={4.2} tiers={[[0.9, 1.3], [1.0, 0.95]]} />
-        <SeatedFigure position={[7.5, Y + f + 1.3, -32.85]} scale={1.15} robe={M.robeSaffron} head="bald" halo />
+        <SeatedFigure position={[7.5, Y + f + 1.3, -32.85]} scale={1.15} robe={M.robeSaffron} head="bald" face="serene" halo holding="scroll" />
         <StandingFigure position={[5.9, Y + f + 0.95, -31.9]} scale={0.62} robe={M.robeBrown} head="bald" holding="staff" />
         <StandingFigure position={[9.1, Y + f + 0.95, -31.9]} scale={0.62} robe={M.robeBrown} head="bald" holding="bowl" />
         {/* Hương án giữa */}
@@ -294,17 +294,20 @@ function ThuongDien() {
 
       <Near x={0} z={zc}>
         {/* Bàn thờ bốn cấp: Tam Thế → Di Đà tam tôn → Thích Ca → Cửu Long */}
-        <AltarTiers x={0} z={-50.1} y0={f} width={14} tiers={[[1.6, 2.6], [1.5, 1.9], [1.5, 1.25], [1.8, 0.7]]} />
+        <AltarTiers x={0} z={-50.1} y0={f} width={14} tiers={[[1.6, 2.7], [1.5, 1.85], [1.5, 1.0], [1.8, 0.5]]} />
+        {/* Tam Thế Phật: quá khứ – hiện tại – vị lai, hào quang lá bồ đề */}
         {[-3.2, 0, 3.2].map((x) => (
-          <SeatedBuddha key={x} position={[x, base + 2.6, -49.3]} scale={1.0} />
+          <SeatedBuddha key={x} position={[x, base + 2.7, -49.35]} scale={0.88} aureole="full" />
         ))}
-        <SeatedBuddha position={[0, base + 1.9, -47.75]} scale={0.9} />
-        <StandingFigure position={[-2.3, base + 1.9, -47.75]} scale={0.85} robe={M.robeWhite} head="crown" holding="vase" halo />
-        <StandingFigure position={[2.3, base + 1.9, -47.75]} scale={0.85} robe={M.robeSaffron} head="crown" holding="lotus" halo />
-        <BuddhaStatue position={[0, base + 1.25, -46.3]} scale={0.78} />
-        <CuuLong position={[0, base + 0.7, -44.6]} scale={0.6} />
-        <CandlePair x={0} z={-44.1} y={f + 0.7} spread={2.4} />
-        <OfferedFlowers y={base + 0.7} z={-44.0} />
+        {/* Di Đà Tam Tôn: A Di Đà giữa, Quán Thế Âm bên trái, Đại Thế Chí bên phải */}
+        <SeatedBuddha position={[0, base + 1.85, -47.7]} scale={0.84} aureole="head" />
+        <QuanAmStatue position={[-1.65, base + 1.85, -47.75]} rotationY={0.12} scale={0.62} tone="gold" holding="vase" />
+        <QuanAmStatue position={[1.65, base + 1.85, -47.75]} rotationY={-0.12} scale={0.62} tone="gold" holding="lotus" />
+        {/* Thích Ca Mâu Ni: ấn xúc địa trên bệ Tu Di */}
+        <BuddhaStatue position={[0, base + 1.0, -46.2]} scale={0.66} />
+        <CuuLong position={[0, base + 0.5, -44.6]} scale={0.6} />
+        <CandlePair x={0} z={-44.1} y={f + 0.5} spread={2.4} />
+        <OfferedFlowers y={base + 0.5} z={-44.0} />
         {/* Phướn hai bên */}
         {[-1, 1].map((s) => (
           <mesh key={s} position={[s * 8.2, base + 2.9, -49.9]} material={M.lacquer}>
@@ -393,9 +396,9 @@ function NhaTo() {
       <Roof width={30.4} depth={11.6} height={2.4} position={[0, Y + f + H, -60.6]} pearl />
       <Near x={0} z={-60.5}>
         <AltarTiers x={0} z={-64.3} y0={f} width={8.6} tiers={[[1.5, 1.3], [1.2, 0.8]]} />
-        <SeatedFigure position={[-2.4, base + 1.3, -63.5]} robe={M.robeBrown} head="bald" holding="staff" />
-        <SeatedFigure position={[0, base + 1.3, -63.5]} scale={1.1} robe={M.robeSaffron} head="bald" beard />
-        <SeatedFigure position={[2.4, base + 1.3, -63.5]} robe={M.robeBrown} head="bald" holding="scroll" />
+        <SeatedFigure position={[-2.4, base + 1.3, -63.5]} robe={M.robeBrown} head="bald" face="elder" beard beardColor="white" holding="staff" />
+        <SeatedFigure position={[0, base + 1.3, -63.5]} scale={1.1} robe={M.robeSaffron} head="bald" face="elder" beard />
+        <SeatedFigure position={[2.4, base + 1.3, -63.5]} robe={M.robeBrown} head="bald" face="monk" holding="scroll" />
         {[-2.4, -1.2, 0, 1.2, 2.4].map((x) => (
           <Tablet key={x} position={[x, base + 0.8, -62.2]} scale={0.8} />
         ))}

@@ -25,7 +25,13 @@ export function useKeyboardInput(handlers: { onInteract: () => void; onEscape: (
       return !!el && (el.tagName === "INPUT" || el.tagName === "TEXTAREA" || el.isContentEditable);
     };
     const down = (e: KeyboardEvent) => {
-      if (isTyping(e)) return;
+      // Esc luôn đóng bảng, kể cả khi đang gõ tên.
+      if (e.code === "Escape") {
+        handlers.onEscape();
+        return;
+      }
+      // Phím đã được thành phần giao diện xử lý (ví dụ mũi tên trong nhóm lựa chọn).
+      if (e.defaultPrevented || isTyping(e)) return;
       const dir = KEYMAP[e.code];
       if (dir) {
         pressed.add(dir);
@@ -34,7 +40,6 @@ export function useKeyboardInput(handlers: { onInteract: () => void; onEscape: (
       }
       if (e.key === "Shift") input.run = true;
       if (e.code === "KeyE" && !e.repeat) handlers.onInteract();
-      if (e.code === "Escape") handlers.onEscape();
     };
     const up = (e: KeyboardEvent) => {
       const dir = KEYMAP[e.code];

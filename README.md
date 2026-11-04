@@ -171,3 +171,25 @@ Tiền đường + Thiêu hương + Thượng điện tạo mặt bằng **chữ
   - Trụ phải (vế sau): *Phúc duyên gieo hạt, ngàn đời hoan hỷ hướng đường Thiền*
   - Sửa nội dung tại `GATE_COUPLET` trong `src/features/temple/domain/world.ts`.
 - **Trai đường**: mọi chỗ ngồi còn trống đều có thể ngồi xuống *Thọ trai*.
+
+## Vái lạy & Quỳ lạy (bản 7)
+
+Tại mọi tượng/ban thờ (Thượng điện, Quán Âm lộ thiên, Đức Ông, Thánh Hiền, Nhà Tổ, Điện Mẫu, Bảo tháp) người chơi có hai hành động:
+- **Vái lạy** — đứng chắp tay vái ba vái.
+- **Quỳ lạy** — chắp tay, quỳ xuống, ba lạy (cúi sát đất), rồi đứng dậy (~10 giây).
+
+Vài Phật tử ở Thượng điện và Tiền đường cũng đang quỳ lạy. Nhật ký thống kê chung “Lần lễ bái” gồm cả hai.
+
+## Bản 8 — Trang nghiêm & truy cập
+
+- **Tượng Phật dựng lại** (`game/entities/BuddhaFigure.tsx`): nhục kế, tóc xoắn ốc xanh đen, minh châu, bạch hào, mặt tròn đầy phúc hậu, mắt khép hờ, tai dài, cổ ba ngấn, y vắt vai trái, chữ Vạn, ấn thiền / ấn xúc địa, tòa sen cánh nhọn, bệ Tu Di, hào quang lửa và hào quang lá bồ đề.
+- **Thượng điện**: Tam Thế (hào quang lá bồ đề) → Di Đà Tam Tôn (Quán Âm cầm tịnh bình, Thế Chí cầm sen, bản thếp vàng) → Thích Ca ấn xúc địa trên bệ Tu Di → Cửu Long; bậc thờ dốc hơn để không che nhau.
+- **Design tokens** trong `:root`: màu, thang chữ (`--fs-*`), khoảng cách bậc 4px (`--sp-*`), bo góc, bóng, chuyển động. Cỡ chữ từ 25 giá trị còn 9 token.
+- **Phong cách sơn son thếp vàng**: bảng như hoành phi viền chỉ vàng kép, nút hành động sơn son viền kim, HUD sơn then, biển 善福寺 ở trang chủ.
+- **WCAG 2.1 AA**: focus hai lớp nhìn rõ trên mọi nền; mở bảng thì focus vào hành động đầu tiên, đóng bảng thì trả focus; chữ trên cảnh 3D luôn có nền tối; `--muted` và viền chip đủ tương phản; nhóm lựa chọn dùng phím mũi tên (`shared/ui/radioGroup.ts`); Esc đóng bảng cả khi đang gõ.
+
+## Bản 9 — Nhân vật & tượng thờ
+
+- `game/entities/PersonParts.tsx`: bộ phận người dùng chung — mặt vẽ bằng texture canvas (10 kiểu: phật tử nam/nữ, thầy, thầy lớn tuổi, chú tiểu, Bồ Tát/thị giả, La Hán, Kim Cương, Đức Ông, Thánh Mẫu), đầu trái xoan, mũi/tai nổi, 11 kiểu tóc/mũ (đầu cạo, chỏm tiểu, tóc nam, tóc vấn + trâm, nón lá, búi tóc, mão, mũ trụ, mũ cánh chuồn, khăn chầu), áo giao lĩnh ôm ngực, tay áo rộng, bàn tay có ngón cái, râu và ria.
+- Tượng đứng/ngồi (`Figures.tsx`) dựng lại: Kim Cương có giáp ngực, đai hổ phù, giáp vai, váy giáp, khăn bay; tượng ngồi trên ngai sơn son thếp vàng, chân buông, tay đặt gối hoặc cầm pháp khí.
+- NPC và nhân vật người chơi dùng chung bộ phận, giữ nguyên hệ thống tư thế và hoạt ảnh.

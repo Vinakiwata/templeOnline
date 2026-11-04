@@ -10,7 +10,7 @@ import { GIANG_DUONG_MATS, PLAYER_CUSHION, PLAYER_MEAL_SEAT, POS, THIEN_CUSHIONS
 export type NpcRole = "monk" | "novice" | "pilgrim";
 export type NpcHead = "monk" | "novice" | "hairM" | "hairF" | "nonLa";
 export type NpcProp = "none" | "broom" | "beads" | "incense" | "mo" | "tray" | "bag" | "bowl" | "ladle";
-export type NpcPose = "stand" | "walk" | "bow" | "pray" | "sit" | "teach" | "woodfish" | "sweep" | "eat" | "cook";
+export type NpcPose = "stand" | "walk" | "bow" | "kneel" | "pray" | "sit" | "teach" | "woodfish" | "sweep" | "eat" | "cook";
 /** Tên vật liệu trong materials.ts (giữ domain không phụ thuộc three.js). */
 export type RobeKey = "robeSaffron" | "robeBrown" | "robeGrey" | "robe" | "robeDark" | "robeWhite" | "robeBlue" | "robeRed" | "robeGreen";
 
@@ -140,12 +140,12 @@ export const NPCS: NpcSpec[] = [
   { id: "vieng-chua-2", role: "pilgrim", label: "Người hành hương", look: LAY_BROWN, path: { points: TOUR, speed: 0.85, mode: "loop", start: 4 } },
 
   // Tiền đường
-  { id: "le-duc-ong", role: "pilgrim", label: "Phật tử", look: LAY_F, station: { x: -6.6, z: -30.3, face: [-7.5, -33], pose: "bow" } },
+  { id: "le-duc-ong", role: "pilgrim", label: "Phật tử quỳ lạy", look: LAY_F, station: { x: -6.6, z: -30.3, face: [-7.5, -33], pose: "kneel" } },
 
   // Thượng điện
   { id: "thay-tung-kinh", role: "monk", label: "Thầy tụng kinh", look: { ...MONK_Y, prop: "mo" }, station: { x: -2.8, z: -42.4, face: [-2.8, -47], pose: "woodfish", seat: 0.05 } },
   { id: "tieu-tung-kinh", role: "novice", label: "Chú tiểu", look: { ...NOVICE_B, prop: "beads" }, station: { x: 2.8, z: -42.4, face: [2.8, -47], pose: "sit", seat: 0.05 } },
-  { id: "le-phat-1", role: "pilgrim", label: "Phật tử", look: LAY_BROWN, station: { x: -5.2, z: -41.2, face: [-5.2, -46], pose: "bow" } },
+  { id: "le-phat-1", role: "pilgrim", label: "Phật tử quỳ lạy", look: LAY_BROWN, station: { x: -5.2, z: -41.2, face: [-5.2, -46], pose: "kneel" } },
   { id: "le-phat-2", role: "pilgrim", label: "Phật tử", look: LAY_M, station: { x: 5.2, z: -41.2, face: [5.2, -46], pose: "bow" } },
 
   // Hành lang

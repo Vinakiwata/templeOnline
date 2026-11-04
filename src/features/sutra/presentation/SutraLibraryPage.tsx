@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { SUTRAS, type Sutra } from "../data/sutras";
 import { getAllProgress } from "../application/sutraProgress";
+import { radioGroupKeys, radioTabIndex } from "../../../shared/ui/radioGroup";
 
 const FILTERS: ("Tất cả" | Sutra["category"])[] = ["Tất cả", "Kinh", "Kệ", "Giáo lý"];
 
@@ -19,13 +20,14 @@ export function SutraLibraryPage() {
         <p className="muted">Đọc ở bất cứ đâu, không cần vào chùa 3D. Tiến trình được lưu trên thiết bị này.</p>
       </header>
 
-      <div className="filters" role="tablist" aria-label="Lọc theo loại">
+      <div className="filters" role="radiogroup" aria-label="Lọc theo loại" onKeyDown={radioGroupKeys}>
         {FILTERS.map((f) => (
           <button
             key={f}
             type="button"
-            role="tab"
-            aria-selected={filter === f}
+            role="radio"
+            aria-checked={filter === f}
+            tabIndex={radioTabIndex(filter === f)}
             className={`chip ${filter === f ? "is-active" : ""}`}
             onClick={() => setFilter(f)}
           >

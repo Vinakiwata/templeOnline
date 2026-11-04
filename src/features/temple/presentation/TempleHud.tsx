@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useTempleStore } from "../application/templeStore";
 import { ACTION_LABELS, getInteractable } from "../domain/interactables";
@@ -33,6 +33,31 @@ export function TempleHud({ isTouch }: { isTouch: boolean }) {
     return () => window.clearTimeout(id);
   }, [toast, clearToast]);
 
+  // Quản lý focus: mở bảng thì đưa focus vào hành động đầu tiên,
+  // đóng bảng thì trả focus về chỗ cũ (WCAG 2.4.3).
+  const returnFocus = useRef<HTMLElement | null>(null);
+  useEffect(() => {
+    if (panel === "none") {
+      const el = returnFocus.current;
+      returnFocus.current = null;
+      if (el && el !== document.body && document.contains(el)) el.focus({ preventScroll: true });
+      return;
+    }
+    const active = document.activeElement as HTMLElement | null;
+    if (active && !active.closest(".sheet")) returnFocus.current = active;
+    const raf = requestAnimationFrame(() => {
+      const sheet = document.querySelector<HTMLElement>(".hud .sheet");
+      if (!sheet || sheet.contains(document.activeElement)) return;
+      const first =
+        sheet.querySelector<HTMLElement>(
+          '[data-autofocus], .action-btn, input, [role="radio"][aria-checked="true"], button:not(.icon-close), a[href]',
+        ) ?? sheet.querySelector<HTMLElement>(".icon-close");
+      if (!first) sheet.tabIndex = -1;
+      (first ?? sheet).focus({ preventScroll: true });
+    });
+    return () => cancelAnimationFrame(raf);
+  }, [panel, panelTargetId]);
+
   const openMenu = () => {
     if (nearby && !isPlayerBusy()) openPanel("menu", nearby.id);
   };
@@ -54,7 +79,8 @@ export function TempleHud({ isTouch }: { isTouch: boolean }) {
           <button
             type="button"
             className="hud-btn hud-btn--icon"
-            aria-label={soundOn ? "Tắt âm thanh" : "Bật âm thanh"}
+            aria-label="Âm thanh"
+            aria-pressed={soundOn}
             onClick={() => setSound(!soundOn)}
           >
             {soundOn ? <IconSound /> : <IconMute />}
@@ -63,6 +89,7 @@ export function TempleHud({ isTouch }: { isTouch: boolean }) {
             type="button"
             className="hud-btn hud-btn--icon"
             aria-label="Bản đồ"
+            aria-expanded={panel === "map"}
             onClick={() => openPanel(panel === "map" ? "none" : "map")}
           >
             <IconMap />
@@ -71,6 +98,7 @@ export function TempleHud({ isTouch }: { isTouch: boolean }) {
             type="button"
             className="hud-btn hud-btn--icon"
             aria-label="Cài đặt"
+            aria-expanded={panel === "settings"}
             onClick={() => openPanel(panel === "settings" ? "none" : "settings")}
           >
             <IconMenu />

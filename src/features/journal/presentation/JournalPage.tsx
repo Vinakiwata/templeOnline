@@ -6,6 +6,7 @@ import { ACTIVITY_LABELS, type ActivityRecord, type ActivityType } from "../../.
 import { formatDuration, formatRelative } from "../../../shared/lib/format";
 import { getSutra } from "../../sutra/data/sutras";
 import { getInteractable } from "../../temple/domain/interactables";
+import { radioGroupKeys, radioTabIndex } from "../../../shared/ui/radioGroup";
 
 /** Nhật ký tu tập + profile cơ bản cho guest. */
 export function JournalPage() {
@@ -49,7 +50,7 @@ export function JournalPage() {
           <span className="stat__label">Ngày tu tập</span>
         </div>
         <div className="stat">
-          <span className="stat__num">{stats.counts.worship ?? 0}</span>
+          <span className="stat__num">{(stats.counts.worship ?? 0) + (stats.counts.kneel_bow ?? 0)}</span>
           <span className="stat__label">Lần lễ bái</span>
         </div>
         <div className="stat">
@@ -66,13 +67,14 @@ export function JournalPage() {
         <h2>Hồ sơ</h2>
         <div className="field">
           <span>Nhân vật đi chùa</span>
-          <div className="filters" role="radiogroup" aria-label="Giới tính">
+          <div className="filters" role="radiogroup" aria-label="Giới tính" onKeyDown={radioGroupKeys}>
             {(["nam", "nu"] as Gender[]).map((g) => (
               <button
                 key={g}
                 type="button"
                 role="radio"
                 aria-checked={guest.gender === g}
+                tabIndex={radioTabIndex(guest.gender === g)}
                 className={`chip ${guest.gender === g ? "is-active" : ""}`}
                 onClick={() => setGuest(updateGuestProfile({ gender: g }))}
               >

@@ -56,6 +56,12 @@ export function HomePage() {
           </div>
           <p className="hero__note">Không cần đăng ký · Miễn phí</p>
         </div>
+        {/* Biển chùa dọc sơn son thếp vàng */}
+        <div className="hero__plaque" aria-hidden="true">
+          <span>善</span>
+          <span>福</span>
+          <span>寺</span>
+        </div>
       </section>
 
       <section className="section">

@@ -2,6 +2,7 @@ import { useEffect, useLayoutEffect, useMemo, useRef } from "react";
 import * as THREE from "three";
 import { useFrame } from "@react-three/fiber";
 import { M } from "./materials";
+import { CrossCollar, Hand, Head, skirtGeo, sleeveGeo, torsoGeo } from "./PersonParts";
 import { cameraState, input, npcColliders, playerRuntime, type PlayerMode } from "../systems/runtime";
 import { getArea, groundHeight, resolveCollisions, SOLEMN_AREAS } from "../../domain/world";
 import { ACTION_TIMELINE, completeAction, handleKeyframe } from "../../application/actionHandler";
@@ -47,6 +48,7 @@ function dampAngle(current: number, target: number, lambda: number, dt: number) 
 
 const MODE_FOR_ACTION: Partial<Record<InteractionAction, PlayerMode>> = {
   worship: "bowing",
+  kneel_bow: "kneeling",
   offer_flower: "offering",
   light_incense: "incense",
   ring_bell: "ringing",
@@ -79,6 +81,7 @@ export function Player() {
     actionTime: 0,
     fired: 0,
     sit: 0,
+    kneel: 0,
     turnTo: 0,
     seatFrom: new THREE.Vector3(),
     seatTo: null as THREE.Vector3 | null,
@@ -125,7 +128,8 @@ export function Player() {
     const mx = input.joyActive ? input.joyX : input.keyX;
     const my = input.joyActive ? input.joyY : input.keyY;
     const mag = Math.min(1, Math.hypot(mx, my));
-    const ritual = p.mode === "bowing" || p.mode === "offering" || p.mode === "incense" || p.mode === "ringing";
+    const ritual =
+      p.mode === "bowing" || p.mode === "kneeling" || p.mode === "offering" || p.mode === "incense" || p.mode === "ringing";
 
     // ── Di chuyển ──
     if (!ritual && p.mode !== "meditating" && mag > 0.08) {
@@ -216,8 +220,17 @@ export function Player() {
     let armXR = -swing;
     let armZ = -0.08; // hơi dang ra khi đứng/đi
     let showFlower = false;
+    let kneelTarget = 0;
 
-    if (p.mode === "bowing") {
+    if (p.mode === "kneeling") {
+      // 0–0.4s chắp tay · 0.4–1.2s quỳ xuống · ba lạy, mỗi lạy 2.6s (trán chạm đất) · 9.0s đứng dậy
+      kneelTarget = t > 0.4 && t < 9.0 ? 1 : 0;
+      const c = (t - 1.2) / 2.6;
+      const bow = c >= 0 && c < 3 ? Math.pow(Math.sin((c % 1) * Math.PI), 2) : 0;
+      pitch = bow * 1.42;
+      armX = armXR = -1.05 + bow * 0.8;
+      armZ = 0.58 - bow * 0.42;
+    } else if (p.mode === "bowing") {
       const bt = Math.max(0, t - 0.1) / 2;
       const local = bt % 1;
       pitch = bt < 3 ? Math.pow(Math.sin(local * Math.PI), 2) * 0.85 : 0;
@@ -250,10 +263,14 @@ export function Player() {
       pitch = 0.04;
     }
 
+    a.kneel = damp(a.kneel, kneelTarget, 5, dt);
+    const k = a.kneel;
     const w = ritual ? env : 1;
     const breathe = Math.sin(performance.now() / 900) * 0.012;
     torso.current.rotation.x = damp(torso.current.rotation.x, pitch * w, 10, dt);
-    torso.current.position.y = THREE.MathUtils.lerp(0.95, 0.42, a.sit) + (moving ? Math.abs(Math.sin(a.phase)) * 0.03 : breathe);
+    torso.current.position.y =
+      THREE.MathUtils.lerp(THREE.MathUtils.lerp(0.95, 0.42, a.sit), 0.52, k) +
+      (moving ? Math.abs(Math.sin(a.phase)) * 0.03 : breathe);
     armL.current.rotation.x = damp(armL.current.rotation.x, ritual ? armX * w : armX, 10, dt);
     armR.current.rotation.x = damp(armR.current.rotation.x, ritual ? armXR * w : armXR, 10, dt);
     armL.current.rotation.z = damp(armL.current.rotation.z, armZ * (ritual ? w : 1), 10, dt);
@@ -263,15 +280,16 @@ export function Player() {
       const step = moving ? Math.sin(a.phase) * 0.16 : 0;
       footL.current.position.z = 0.06 + step;
       footR.current.position.z = 0.06 - step;
-      footL.current.visible = footR.current.visible = a.sit < 0.5;
+      footL.current.visible = footR.current.visible = a.sit < 0.5 && k < 0.5;
     }
     if (skirt.current) {
       const s = a.sit;
-      skirt.current.scale.set(1 + s * 0.9, 1 - s * 0.68, 1 + s * 0.5);
-      skirt.current.position.y = THREE.MathUtils.lerp(0.5, 0.16, s);
+      // Ngồi kiết già: vạt áo xoè thấp · Quỳ: vạt áo gấp dưới gối
+      skirt.current.scale.set(1 + s * 0.9 + k * 0.3, Math.max(0.3, 1 - s * 0.68 - k * 0.48), 1 + s * 0.5 + k * 0.4);
+      skirt.current.position.y = THREE.MathUtils.lerp(0.5, 0.16, s) - k * 0.24;
     }
     if (flower.current) flower.current.visible = showFlower;
-    if (tag.current) tag.current.position.y = THREE.MathUtils.lerp(2.12, 1.55, a.sit) * (female ? 0.95 : 1);
+    if (tag.current) tag.current.position.y = THREE.MathUtils.lerp(2.12, 1.55, Math.max(a.sit, k * 0.75)) * (female ? 0.95 : 1);
   });
 
   const robeMat = female ? M.robeFemale : M.robe;
@@ -283,57 +301,29 @@ export function Player() {
         <spriteMaterial map={nameTag.tex} transparent depthWrite={false} />
       </sprite>
       <group scale={female ? 0.95 : 1}>
-      {/* Vạt áo dưới */}
-      <mesh ref={skirt} position={[0, 0.5, 0]} material={robeMat} castShadow>
-        <cylinderGeometry args={[0.2, 0.31, 1.0, 16]} />
+      {/* Vạt áo tràng dưới */}
+      <mesh ref={skirt} geometry={skirtGeo()} position={[0, 0.5, 0]} material={robeMat} castShadow />
+      <mesh ref={footL} position={[-0.09, 0.035, 0.06]} scale={[0.055, 0.04, 0.115]} material={M.shoe} castShadow>
+        <sphereGeometry args={[1, 12, 8]} />
       </mesh>
-      <mesh ref={footL} position={[-0.1, 0.03, 0.06]} material={M.shoe} castShadow>
-        <boxGeometry args={[0.1, 0.06, 0.22]} />
-      </mesh>
-      <mesh ref={footR} position={[0.1, 0.03, 0.06]} material={M.shoe} castShadow>
-        <boxGeometry args={[0.1, 0.06, 0.22]} />
+      <mesh ref={footR} position={[0.09, 0.035, 0.06]} scale={[0.055, 0.04, 0.115]} material={M.shoe} castShadow>
+        <sphereGeometry args={[1, 12, 8]} />
       </mesh>
 
       {/* Thân trên — pivot ở hông */}
       <group ref={torso} position={[0, 0.95, 0]}>
-        <mesh position={[0, 0.31, 0]} material={robeMat} castShadow>
-          <cylinderGeometry args={[0.17, 0.21, 0.62, 16]} />
-        </mesh>
-        <mesh position={[0, 0.6, 0]} scale={[1, 0.45, 0.8]} material={robeDarkMat} castShadow>
-          <sphereGeometry args={[0.22, 16, 10]} />
-        </mesh>
+        <mesh geometry={torsoGeo()} material={robeMat} castShadow />
+        <CrossCollar material={robeDarkMat} />
+        {[-1, 1].map((sx) => (
+          <mesh key={sx} position={[sx * 0.2, 0.56, 0]} material={robeMat}>
+            <sphereGeometry args={[0.08, 12, 10]} />
+          </mesh>
+        ))}
         {/* Đầu */}
-        <group position={[0, 0.8, 0]}>
-          <mesh position={[0, -0.07, 0]} material={M.skin}>
-            <cylinderGeometry args={[0.05, 0.06, 0.1, 10]} />
-          </mesh>
-          <mesh position={[0, 0.06, 0]} material={M.skin} castShadow>
-            <sphereGeometry args={[0.13, 20, 16]} />
-          </mesh>
-          {female ? (
-            <>
-              {/* Tóc dài vấn búi */}
-              <mesh position={[0, 0.075, -0.014]} rotation-x={-0.3} material={M.hair}>
-                <sphereGeometry args={[0.14, 20, 12, 0, Math.PI * 2, 0, Math.PI * 0.62]} />
-              </mesh>
-              <mesh position={[0, 0.05, -0.15]} material={M.hair}>
-                <sphereGeometry args={[0.075, 12, 10]} />
-              </mesh>
-              <mesh position={[0, 0.07, -0.15]} rotation-x={Math.PI / 2} material={M.goldBright}>
-                <torusGeometry args={[0.05, 0.008, 6, 16]} />
-              </mesh>
-              {/* Tóc dài buông sau lưng */}
-              <mesh position={[0, -0.14, -0.12]} rotation-x={0.12} scale={[1, 1, 0.45]} material={M.hair}>
-                <cylinderGeometry args={[0.1, 0.075, 0.42, 12]} />
-              </mesh>
-            </>
-          ) : (
-            <mesh position={[0, 0.08, -0.012]} rotation-x={-0.35} material={M.hair}>
-              <sphereGeometry args={[0.138, 20, 12, 0, Math.PI * 2, 0, Math.PI * 0.5]} />
-            </mesh>
-          )}
+        <group position={[0, 0.84, 0]}>
+          <Head face={female ? "lady" : "calm"} hair={female ? "hairF" : "hairM"} skin={M.skin} />
         </group>
-        {/* Tay */}
+        {/* Tay áo rộng & bàn tay */}
         {(
           [
             [armL, -0.23],
@@ -341,12 +331,8 @@ export function Player() {
           ] as const
         ).map(([ref, x]) => (
           <group key={x} ref={ref} position={[x, 0.55, 0]}>
-            <mesh position={[0, -0.26, 0]} material={robeMat} castShadow>
-              <cylinderGeometry args={[0.065, 0.08, 0.52, 10]} />
-            </mesh>
-            <mesh position={[0, -0.55, 0]} material={M.skin}>
-              <sphereGeometry args={[0.05, 10, 8]} />
-            </mesh>
+            <mesh geometry={sleeveGeo()} material={robeMat} castShadow />
+            <Hand skin={M.skin} side={x > 0 ? 1 : -1} at={[0, -0.49, 0]} />
           </group>
         ))}
         {/* Đóa sen trên tay khi dâng hoa */}
